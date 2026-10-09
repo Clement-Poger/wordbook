@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f7fc">
+    <meta name="description" content="A friendly little space to grow your English vocabulary.">
+    <title>Wordstep — English, one word at a time</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="/supabase-config.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <section class="login-screen" id="login-screen" aria-labelledby="login-title">
+      <div class="login-visual">
+        <a class="brand brand-light" href="/" aria-label="Wordstep home">
+          <span class="brand-mark"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span>
+          <span>wordstep</span>
+        </a>
+        <div class="login-message">
+          <span class="eyebrow">A LITTLE EVERY DAY</span>
+          <h1>Find the words<br>for what you mean.</h1>
+          <p>Make room for new words. Keep the ones that matter. Let confidence follow.</p>
+          <div class="quote-card">
+            <span class="quote-mark">“</span>
+            <p>One language sets you in a corridor for life. Two languages open every door along the way.</p>
+            <span class="quote-byline">— Frank Smith</span>
+          </div>
+        </div>
+        <span class="visual-note">YOUR ENGLISH, AT YOUR OWN PACE</span>
+      </div>
+      <div class="login-panel">
+        <div class="login-card">
+          <span class="mobile-brand brand">
+            <span class="brand-mark"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span>
+            <span>wordstep</span>
+          </span>
+          <span class="eyebrow">WELCOME BACK</span>
+          <h2 id="login-title">Your next word awaits.</h2>
+          <p class="login-intro">Sign in to pick up where you left off.</p>
+          <form id="login-form" class="login-form">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" placeholder="Your username" required>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+            <p class="form-error" id="login-error" role="alert" aria-live="polite"></p>
+            <button class="button button-primary login-submit" type="submit">
+              <span>Sign in</span><svg aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg>
+            </button>
+          </form>
+          <p class="login-footnote"><svg aria-hidden="true"><use href="/icons.svg#icon-lock"></use></svg> Sign-in protected by Supabase.</p>
+        </div>
+        <span class="panel-footer">A quieter way to grow your vocabulary.</span>
+      </div>
+    </section>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#" data-view="words" aria-label="Wordstep home">
+          <span class="brand-mark"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span>
+          <span>wordstep</span>
+        </a>
+        <div class="sidebar-label">YOUR SPACE</div>
+        <nav class="main-nav" aria-label="Main navigation">
+          <button class="nav-item active" type="button" data-view="words" aria-current="page" aria-label="Word library">
+            <svg aria-hidden="true"><use href="/icons.svg#icon-book"></use></svg><span>Word library</span>
+          </button>
+          <button class="nav-item" type="button" data-view="quiz" aria-label="Quick quiz">
+            <svg aria-hidden="true"><use href="/icons.svg#icon-target"></use></svg><span>Quick quiz</span>
+            <span class="nav-dot" aria-hidden="true"></span>
+          </button>
+          <button class="nav-item admin-nav-item" id="admin-nav-item" type="button" data-view="admin" aria-label="Manage lessons" hidden>
+            <svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg><span>Manage lessons</span>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="daily-note">
+            <svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg>
+            <p><strong>Small steps count.</strong><br>A few new words today go a long way.</p>
+          </div>
+          <button class="account-button" id="logout-button" type="button" aria-label="Sign out">
+            <span class="avatar" id="avatar">W</span>
+            <span class="account-name"><strong id="account-username">Learner</strong><small id="account-role">Learner</small></span>
+            <svg class="logout-icon" aria-hidden="true"><use href="/icons.svg#icon-logout"></use></svg>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <span class="breadcrumb"><span>My learning</span><span class="breadcrumb-divider">/</span><strong id="breadcrumb-page">Word library</strong></span>
+          <div class="topbar-right"><span class="today-label" id="today-label"></span><span class="topbar-avatar" id="topbar-avatar">W</span></div>
+        </header>
+        <p class="app-error" id="app-error" role="alert" hidden></p>
+        <section class="view-panel" id="words-view" aria-labelledby="page-title">
+          <div class="page-heading">
+            <div><span class="eyebrow">YOUR PERSONAL COLLECTION</span><h1 id="page-title">Word library<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">A growing collection of useful words, ready when you are.</p></div>
+            <button class="button button-dark" type="button" data-view="quiz"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg><span>Practice now</span><svg class="button-arrow" aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg></button>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card"><span class="stat-icon stat-icon-lavender"><svg aria-hidden="true"><use href="/icons.svg#icon-book"></use></svg></span><span class="stat-copy"><span class="stat-label">WORDS TO EXPLORE</span><strong id="word-count">0</strong></span><span class="stat-aside">in your library</span></div>
+            <div class="stat-card"><span class="stat-icon stat-icon-peach"><svg aria-hidden="true"><use href="/icons.svg#icon-bookmark"></use></svg></span><span class="stat-copy"><span class="stat-label">SAVED FOR LATER</span><strong id="saved-count">0</strong></span><span class="stat-aside">words saved</span></div>
+            <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span><span class="stat-aside">a little practice</span></div>
+          </div>
+          <div class="library-toolbar">
+            <div><h2>Words for everyday life</h2><p>Thoughtful picks for clearer, more natural English.</p></div>
+            <label class="search-box"><svg aria-hidden="true"><use href="/icons.svg#icon-search"></use></svg><span class="visually-hidden">Search words</span><input id="word-search" type="search" placeholder="Find a word..." autocomplete="off"></label>
+          </div>
+          <div class="word-list" id="word-list" aria-live="polite"></div>
+          <p class="list-endnote"><span></span> That's your little collection for today <span></span></p>
+        </section>
+
+        <section class="view-panel admin-view" id="admin-view" aria-labelledby="admin-title" hidden>
+          <div class="page-heading">
+            <div><span class="eyebrow">YOUR TEACHER TOOLKIT</span><h1 id="admin-title">Manage lessons<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">Create clear, useful word lessons for your learners.</p></div>
+          </div>
+          <form class="lesson-form" id="lesson-form">
+            <div class="form-heading"><span class="stat-icon stat-icon-lavender"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span><div><h2 id="lesson-form-title">Create a word lesson</h2><p>Each lesson becomes a new word in the library and the quiz.</p></div></div>
+            <input id="lesson-id" name="id" type="hidden">
+            <div class="form-grid">
+              <label>Word<input name="word" maxlength="80" required placeholder="e.g. daydream"></label>
+              <label>Part of speech<input name="part_of_speech" maxlength="40" required placeholder="e.g. verb"></label>
+              <label>Level<select name="level"><option>A1</option><option selected>A2</option><option>B1</option><option>B2</option><option>C1</option></select></label>
+              <label>Topic<input name="topic" maxlength="60" required value="Everyday" placeholder="e.g. Travel"></label>
+              <label class="form-span">Meaning<input name="definition" maxlength="500" required placeholder="Explain the word in simple English"></label>
+              <label class="form-span">Example sentence<input name="example" maxlength="500" required placeholder="Show the word in a natural sentence"></label>
+            </div>
+            <p class="form-error admin-form-error" id="lesson-error" role="alert" aria-live="polite"></p>
+            <div class="form-actions"><button class="button button-quiet" id="lesson-cancel" type="button" hidden>Cancel edit</button><button class="button button-dark" id="lesson-submit" type="submit"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg><span>Add lesson</span></button></div>
+          </form>
+          <div class="lesson-manager-header"><div><h2>Your lesson shelf</h2><p>Updates are shared with both learners instantly.</p></div><span class="manager-count" id="manager-count"></span></div>
+          <div class="lesson-manager-list" id="lesson-manager-list"></div>
+        </section>
+
+        <section class="view-panel quiz-view" id="quiz-view" aria-labelledby="quiz-title" hidden>
+          <div class="page-heading quiz-heading">
+            <div><span class="eyebrow">A MOMENT TO PRACTICE</span><h1 id="quiz-title">Quick quiz<span class="heading-period">.</span></h1>
+              <p class="page-subtitle">No pressure — just a gentle check-in with your new words.</p></div>
+          </div>
+          <div class="quiz-card" id="quiz-card">
+            <div class="quiz-topline"><span class="quiz-kicker"><svg aria-hidden="true"><use href="/icons.svg#icon-target"></use></svg> WORD CHECK</span><span class="quiz-progress-text" id="quiz-progress-text"></span></div>
+            <div class="progress-track"><span id="quiz-progress"></span></div>
+            <div class="quiz-question-area">
+              <span class="question-label">WHICH WORD MEANS…</span>
+              <h2 id="quiz-question">Take a breath and find the meaning.</h2>
+              <div class="answer-list" id="answer-list"></div>
+              <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
+              <div class="quiz-actions"><span class="quiz-hint"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg> Take your time. You can always try again.</span><button class="button button-dark" id="quiz-next" type="button" disabled>Check answer <svg class="button-arrow" aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg></button></div>
+            </div>
+          </div>
+          <div class="quiz-footer"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg> No pressure. Learning happens one good try at a time.</div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

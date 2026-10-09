@@ -1,0 +1,12 @@
+{
+  "name": "wordstep-english",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A two-role English vocabulary learning app with Supabase",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js"
+  }
+}
