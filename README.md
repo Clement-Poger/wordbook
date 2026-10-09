@@ -4,7 +4,7 @@
 
 WordBook est une application web pour enrichir son vocabulaire anglais et progresser à son rythme. Elle associe une bibliothèque de mots organisée par niveau à des quiz courts, interactifs et agréables à refaire.
 
-**[Découvrir WordBook](https://clement-poger.github.io/gbook/)**
+**[Découvrir WordBook](https://clement-poger.github.io/wordbook/)**
 
 ## L’expérience
 
