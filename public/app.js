@@ -818,7 +818,7 @@ function wireEvents() {
 }
 
 async function initializeSupabase() {
-  const config = window.WORDSTEP_SUPABASE_CONFIG;
+  const config = SUPABASE_CONFIG;
   if (!config?.url || !config?.anonKey) {
     showLoginError("Supabase isn’t configured yet. Follow the setup steps in the README.");
     return;
