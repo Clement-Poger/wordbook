@@ -6,10 +6,10 @@ Ce guide explique comment relier l’application à Supabase, préparer les deux
 
 | Nom saisi sur le site | Adresse à créer dans Supabase Auth | Rôle Wordstep |
 | --- | --- | --- |
-| `elios` | `elios@wordstep.invalid` | Admin : peut lire, ajouter, modifier et supprimer des leçons |
-| `eva_villega` | `eva_villega@wordstep.invalid` | Apprenante : peut lire les leçons et faire les quiz |
+| `elios` | `elios@word.book` | Admin : peut lire, ajouter, modifier et supprimer des leçons |
+| `eva` | `eva@word.book` | Apprenante : peut lire les leçons et faire les quiz |
 
-Choisis un mot de passe pour chaque compte. Supabase Auth les conserve et les protège : ne mets aucun mot de passe dans le code, dans le fichier `.env` ou dans ce dépôt.
+Les mots de passe se configurent directement dans Supabase Auth, jamais dans le code, le fichier `.env` ou ce dépôt. Saisis le mot de passe correspondant fourni pour chaque compte. Comme ils ont été partagés dans cette conversation, remplace-les par des mots de passe uniques et robustes avant toute mise en ligne.
 
 ## Étape 1 — Créer le projet Supabase
 
@@ -26,27 +26,31 @@ Dans le tableau de bord du projet :
 
 1. Ouvre **Authentication → Users**.
 2. Clique sur **Add user** / **Create new user**.
-3. Crée le premier compte avec l’adresse `elios@wordstep.invalid` et un mot de passe de ton choix. Coche **Auto Confirm User** / **Confirm email** si cette option apparaît.
-4. Répète l’opération pour `eva_villega@wordstep.invalid`, avec son propre mot de passe, et confirme aussi son adresse.
+3. Crée le premier compte avec l’adresse `elios@word.book` et le mot de passe fourni pour ce compte. Coche **Auto Confirm User** / **Confirm email** si cette option apparaît.
+4. Répète l’opération pour `eva@word.book`, avec le mot de passe fourni pour ce compte, et confirme aussi son adresse.
 
-Ces adresses sont des identifiants techniques internes à Supabase. Le site te demande seulement le nom d’utilisateur (`elios` ou `eva_villega`) et le mot de passe correspondant. N’active pas les inscriptions publiques : les comptes doivent être créés depuis le tableau de bord Supabase.
+Le site te demande le nom d’utilisateur (`elios` ou `eva`) et le mot de passe correspondant. N’active pas les inscriptions publiques : les comptes doivent être créés depuis le tableau de bord Supabase.
 
 ## Étape 3 — Créer les leçons et les permissions
 
-Le fichier [`supabase/migrations/202610090001_wordstep.sql`](./supabase/migrations/202610090001_wordstep.sql) configure la base :
+Les fichiers de migration dans [`supabase/migrations/`](./supabase/migrations/) configurent la base :
 
 - crée la table des profils et la table des leçons ;
 - ajoute dix leçons de départ ;
 - active les règles de sécurité **Row Level Security (RLS)** ;
 - autorise les utilisateurs connectés à consulter les leçons ;
-- réserve les changements de leçons au rôle admin.
+- réserve les changements de leçons au rôle admin ;
+- ne garde que les niveaux B1, B2 et C1 (les leçons A1/A2 existantes passent automatiquement au niveau B1).
 
 Pour l’exécuter :
 
 1. Ouvre **SQL Editor** dans le tableau de bord Supabase.
-2. Dans VS Code, ouvre le fichier SQL indiqué ci-dessus, sélectionne et copie tout son contenu.
-3. Colle le SQL dans une nouvelle requête de l’éditeur Supabase.
-4. Clique sur **Run**. Attends le message indiquant que la requête s’est terminée sans erreur.
+2. Dans VS Code, ouvre `202610090001_wordstep.sql`, sélectionne et copie tout son contenu.
+3. Colle le SQL dans une nouvelle requête de l’éditeur Supabase et clique sur **Run**.
+4. Répète ces étapes avec `202610090002_intermediate_levels.sql`, puis `202610090004_update_accounts.sql`.
+5. Attends le message indiquant que les requêtes se sont terminées sans erreur.
+
+Si le premier fichier a déjà été exécuté pour configurer ton projet, ne le relance pas : exécute les nouvelles migrations `202610090002_intermediate_levels.sql` puis `202610090004_update_accounts.sql`. Cette dernière met à jour le profil `eva_villega` en `eva`.
 
 Tu peux aussi copier son contenu avec le terminal, depuis la racine du projet :
 
@@ -54,7 +58,7 @@ Tu peux aussi copier son contenu avec le terminal, depuis la racine du projet :
 Get-Content .\supabase\migrations\202610090001_wordstep.sql -Raw | Set-Clipboard
 ```
 
-Reviens ensuite dans **SQL Editor**, colle le contenu, puis clique sur **Run**.
+Reviens ensuite dans **SQL Editor**, colle le contenu, puis clique sur **Run**. Répète avec `202610090002_intermediate_levels.sql` et `202610090004_update_accounts.sql` avant de continuer.
 
 ## Étape 4 — Attribuer les rôles
 
@@ -67,14 +71,14 @@ La migration crée les règles et les tables, mais elle ne peut pas attribuer le
 insert into public.profiles (id, username, role)
 select id, 'elios', 'admin'
 from auth.users
-where email = 'elios@wordstep.invalid'
+where email = 'elios@word.book'
 on conflict (id) do update
 set username = excluded.username, role = excluded.role;
 
 insert into public.profiles (id, username, role)
-select id, 'eva_villega', 'user'
+select id, 'eva', 'user'
 from auth.users
-where email = 'eva_villega@wordstep.invalid'
+where email = 'eva@word.book'
 on conflict (id) do update
 set username = excluded.username, role = excluded.role;
 ```
@@ -90,9 +94,11 @@ Le résultat doit contenir exactement :
 | username | role |
 | --- | --- |
 | `elios` | `admin` |
-| `eva_villega` | `user` |
+| `eva` | `user` |
 
 Si une ligne manque, vérifie que l’adresse correspondante apparaît dans **Authentication → Users**, puis relance le SQL d’attribution des rôles.
+
+Si tu as déjà créé les anciens comptes Auth, modifie leur adresse e-mail dans **Authentication → Users** pour utiliser celles indiquées ci-dessus et réinitialise leurs mots de passe. Garde les mêmes utilisateurs pour conserver leurs identifiants Supabase (UUID), puis exécute les migrations `202610090002_intermediate_levels.sql` et `202610090004_update_accounts.sql`, et relance le SQL d’attribution des rôles.
 
 ## Étape 5 — Configurer Wordstep sur ton ordinateur
 
@@ -113,6 +119,8 @@ Conserve les autres paramètres qui se trouvent déjà dans le fichier. `.env` e
 
 ## Étape 6 — Lancer et essayer le site
 
+Cette étape est seulement pour un aperçu local : GitHub Pages hébergera le site directement et ne nécessite pas `npm start`.
+
 Depuis la racine du projet, ouvre un terminal et lance :
 
 ```powershell
@@ -121,8 +129,8 @@ npm start
 
 Ouvre ensuite [http://127.0.0.1:3000](http://127.0.0.1:3000) dans ton navigateur.
 
-- Connecte-toi avec `elios` et le mot de passe défini pour `elios@wordstep.invalid` : l’entrée **Manage lessons** te permet d’ajouter, modifier ou supprimer des mots.
-- Déconnecte-toi, puis connecte-toi avec `eva_villega` et son mot de passe : elle peut chercher les mots et faire un quiz, sans accès à l’administration.
+- Connecte-toi avec `elios` et le mot de passe défini pour `elios@word.book` : l’entrée **Manage lessons** te permet d’ajouter, modifier ou supprimer des mots.
+- Déconnecte-toi, puis connecte-toi avec `eva` et son mot de passe : elle peut chercher les mots et faire un quiz, sans accès à l’administration.
 
 ## En cas de problème
 
@@ -131,12 +139,26 @@ Ouvre ensuite [http://127.0.0.1:3000](http://127.0.0.1:3000) dans ton navigateur
 - **Le site ne se connecte pas à Supabase** : vérifie `SUPABASE_URL` et `SUPABASE_ANON_KEY` dans `.env`, puis arrête et relance `npm start`.
 - **Mot de passe oublié** : modifie ou réinitialise le mot de passe de l’utilisateur dans **Authentication → Users** du tableau de bord Supabase.
 
+## Publier sur GitHub Pages
+
+Le dépôt inclut un workflow GitHub Actions (`.github/workflows/deploy-pages.yml`) qui publie les fichiers statiques de `public/`. Il crée la configuration Supabase au moment du déploiement : aucun serveur Node ni commande `npm start` n’est utilisé par le site en ligne.
+
+1. Sur GitHub, ouvre **Clement-Poger/gbook → Settings → Secrets and variables → Actions**.
+2. Ajoute ces repository secrets avec les valeurs du projet Supabase : `SUPABASE_URL` et `SUPABASE_ANON_KEY`.
+3. Vérifie que `SUPABASE_ANON_KEY` est bien la clé publique `anon`/`publishable`. Le workflow l’injecte dans le JavaScript livré au navigateur, où cette clé est visible par conception. **N’utilise jamais une clé `service_role` ou une clé secrète.** La protection des données repose sur les règles RLS Supabase.
+4. Dans **Settings → Pages**, choisis **GitHub Actions** comme source de publication.
+5. Dans Supabase, ajoute l’URL GitHub Pages du site aux URLs autorisées de **Authentication → URL Configuration**. Pour ce dépôt, l’URL est généralement `https://clement-poger.github.io/gbook/`. Utilise l’URL réellement affichée dans **Settings → Pages** si elle diffère.
+6. Pousse tes changements sur la branche `main`, ou lance **Actions → Deploy Wordstep to GitHub Pages → Run workflow**. L’URL publiée apparaîtra dans l’exécution du workflow et dans **Settings → Pages**.
+
+Le workflow crée `public/supabase-config.js` uniquement dans l’environnement temporaire de publication. Ne crée pas et ne commit pas ce fichier dans le dépôt. Les chemins des fichiers sont relatifs à l’application, ce qui permet de la servir sous `/gbook/` sur GitHub Pages.
+
 ## Ce que contient l’application
 
 - Bibliothèque de leçons filtrable, avec définitions, exemples, niveaux, thèmes et prononciation.
+- Trois niveaux disponibles : B1, B2 et C1.
 - Favoris mémorisés sur l’appareil.
 - Quiz à choix multiples avec questions mélangées, explication après chaque réponse et points de pratique.
 - Administration des leçons réservée à `elios`, protégée à la fois dans l’interface et par les règles RLS de Supabase.
 - Icônes centralisées dans [`public/icons.svg`](./public/icons.svg) et styles inspirés de CodeBook et Codarium dans [`public/styles.css`](./public/styles.css).
 
-Pour mettre le site en ligne, héberge le serveur Node derrière HTTPS et configure `SUPABASE_URL` et `SUPABASE_ANON_KEY` comme variables d’environnement sur l’hébergeur. Ne publie jamais le fichier `.env` ni une clé `service_role`.
+Le serveur Node et `npm start` restent disponibles pour le développement local. La publication GitHub Pages décrite ci-dessus sert les fichiers statiques et conserve la connexion directe à Supabase. Ne publie jamais le fichier `.env` ni une clé `service_role`.

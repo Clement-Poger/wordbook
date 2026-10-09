@@ -1,10 +1,12 @@
-const ACCOUNTS = Object.freeze({
-  elios: "elios@wordstep.invalid",
-  eva_villega: "eva_villega@wordstep.invalid",
+﻿const ACCOUNTS = Object.freeze({
+  elios: "elios@word.book",
+  eva: "eva@word.book",
 });
-const LEVELS = new Set(["A1", "A2", "B1", "B2", "C1"]);
+const LEVELS = new Set(["B1", "B2", "C1"]);
 
 const loginScreen = document.querySelector("#login-screen");
+const welcomeScreen = document.querySelector("#welcome-screen");
+const loginPanel = document.querySelector("#login-panel");
 const appShell = document.querySelector("#app-shell");
 const loginForm = document.querySelector("#login-form");
 const loginError = document.querySelector("#login-error");
@@ -13,6 +15,8 @@ const adminView = document.querySelector("#admin-view");
 const quizView = document.querySelector("#quiz-view");
 const wordList = document.querySelector("#word-list");
 const wordSearch = document.querySelector("#word-search");
+const levelFilter = document.querySelector("#level-filter");
+const topicFilter = document.querySelector("#topic-filter");
 const quizCard = document.querySelector("#quiz-card");
 const lessonForm = document.querySelector("#lesson-form");
 let supabaseClient;
@@ -25,6 +29,12 @@ let quizIndex = 0;
 let quizScore = 0;
 let selectedAnswer = -1;
 let answered = false;
+let quizMode = "meaning";
+let quizLevel = "all";
+let quizLength = 5;
+let quizStreak = 0;
+let quizBestStreak = 0;
+let quizPoints = 0;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -44,6 +54,18 @@ function showAppError(message) {
   const error = document.querySelector("#app-error");
   error.textContent = message;
   error.hidden = !message;
+}
+
+function showWelcome() {
+  loginPanel.hidden = true;
+  welcomeScreen.hidden = false;
+  document.querySelector("#join-button").focus({ preventScroll: true });
+}
+
+function showLoginPanel() {
+  welcomeScreen.hidden = true;
+  loginPanel.hidden = false;
+  loginForm.elements.username.focus({ preventScroll: true });
 }
 
 function storageKey() {
@@ -77,8 +99,9 @@ function updateAccount() {
 }
 
 function setView(view) {
-  const labels = { words: "Word library", quiz: "Quick quiz", admin: "Manage lessons" };
+  const labels = { words: "Word library", quiz: "Word quest", admin: "Manage lessons" };
   const currentView = view === "admin" && currentProfile.role !== "admin" ? "words" : view;
+  const enteringQuiz = currentView === "quiz" && quizView.hidden;
   wordsView.hidden = currentView !== "words";
   quizView.hidden = currentView !== "quiz";
   adminView.hidden = currentView !== "admin";
@@ -89,18 +112,37 @@ function setView(view) {
     if (selected) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   });
-  if (currentView === "quiz") startQuiz();
+  document.querySelectorAll(".view-panel").forEach((panel) => {
+    panel.classList.toggle("is-entering", !panel.hidden);
+  });
+  if (enteringQuiz) renderQuizSetup();
 }
 
 function renderWords() {
   const query = wordSearch.value.trim().toLowerCase();
-  const visible = lessons.filter(({ word, definition, topic }) =>
-    `${word} ${definition} ${topic}`.toLowerCase().includes(query));
+  const selectedLevel = levelFilter.value;
+  const selectedTopic = topicFilter.value;
+  const savedOnly = document.querySelector("#saved-filter").getAttribute("aria-pressed") === "true";
+  const topics = [...new Set(lessons.map(({ topic }) => topic))].sort((a, b) => a.localeCompare(b));
+  const previousTopic = selectedTopic;
+  topicFilter.innerHTML = '<option value="all">All topics</option>' + topics
+    .map((topic) => `<option value="${escapeHtml(topic)}">${escapeHtml(topic)}</option>`).join("");
+  topicFilter.value = topics.includes(previousTopic) ? previousTopic : "all";
+  const visible = lessons.filter((lesson) => {
+    const searchable = `${lesson.word} ${lesson.definition} ${lesson.example} ${lesson.part_of_speech} ${lesson.topic}`.toLowerCase();
+    return searchable.includes(query)
+      && (selectedLevel === "all" || lesson.level === selectedLevel)
+      && (topicFilter.value === "all" || lesson.topic === topicFilter.value)
+      && (!savedOnly || savedWords.has(lesson.id));
+  });
   document.querySelector("#word-count").textContent = String(lessons.length);
   document.querySelector("#saved-count").textContent = String(savedWords.size);
+  document.querySelector("#saved-filter-count").textContent = String(savedWords.size);
+  document.querySelector("#results-count").textContent = `${visible.length} ${visible.length === 1 ? "word" : "words"}`;
 
   if (!visible.length) {
-    wordList.innerHTML = `<div class="empty-search">${lessons.length ? "No words found. Try another search." : "Your lesson shelf is getting ready. Check back soon."}</div>`;
+    const hasWords = lessons.length > 0;
+    wordList.innerHTML = `<div class="empty-search"><span class="empty-search-icon"><svg aria-hidden="true"><use href="./icons.svg#icon-search"></use></svg></span><strong>${hasWords ? "No words match these filters" : "Your word shelf is ready to grow"}</strong><span>${hasWords ? "Try a different search or clear one of your filters." : "New lessons will show up here as soon as they are added."}</span>${hasWords ? '<button class="button button-quiet" id="clear-filters" type="button">Clear filters</button>' : ""}</div>`;
     return;
   }
 
@@ -108,20 +150,133 @@ function renderWords() {
     const saved = savedWords.has(lesson.id);
     return `
       <article class="word-card">
+        <div class="word-card-top"><span class="word-level level-${escapeHtml(lesson.level.toLowerCase())}">${escapeHtml(lesson.level)}</span><button class="save-button ${saved ? "saved" : ""}" type="button" data-save-word="${escapeHtml(lesson.id)}" aria-label="${saved ? "Remove" : "Save"} ${escapeHtml(lesson.word)} ${saved ? "from" : "to"} saved words" aria-pressed="${saved}"><svg aria-hidden="true"><use href="./icons.svg#icon-bookmark"></use></svg></button></div>
         <div class="word-heading">
           <h3 class="word-title">${escapeHtml(lesson.word)}</h3>
-          <span class="word-part">${escapeHtml(lesson.part_of_speech)}</span>
           <button class="speak-button" type="button" data-speak="${escapeHtml(lesson.word)}" aria-label="Hear ${escapeHtml(lesson.word)} pronounced">
-            <svg aria-hidden="true"><use href="/icons.svg#icon-volume"></use></svg>
+            <svg aria-hidden="true"><use href="./icons.svg#icon-volume"></use></svg>
           </button>
         </div>
-        <div><p class="word-definition">${escapeHtml(lesson.definition)}</p><span class="word-meta">${escapeHtml(lesson.topic)} <span>·</span> ${escapeHtml(lesson.level)}</span></div>
-        <p class="word-example">${escapeHtml(lesson.example)}</p>
-        <button class="save-button ${saved ? "saved" : ""}" type="button" data-save-word="${escapeHtml(lesson.id)}" aria-label="${saved ? "Remove" : "Save"} ${escapeHtml(lesson.word)} ${saved ? "from" : "to"} saved words" aria-pressed="${saved}">
-          <svg aria-hidden="true"><use href="/icons.svg#icon-bookmark"></use></svg>
-        </button>
+        <span class="word-part">${escapeHtml(lesson.part_of_speech)}</span>
+        <p class="word-definition">${escapeHtml(lesson.definition)}</p>
+        <div class="word-card-bottom"><span class="word-topic"><svg aria-hidden="true"><use href="./icons.svg#icon-tag"></use></svg>${escapeHtml(lesson.topic)}</span><p class="word-example">${escapeHtml(lesson.example)}</p></div>
       </article>`;
   }).join("");
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (quoted) {
+      if (character === '"' && text[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (character === '"') {
+        quoted = false;
+      } else {
+        field += character;
+      }
+    } else if (character === '"' && field.length === 0) {
+      quoted = true;
+    } else if (character === ",") {
+      row.push(field);
+      field = "";
+    } else if (character === "\n" || character === "\r") {
+      if (character === "\r" && text[index + 1] === "\n") index += 1;
+      row.push(field);
+      if (row.some((value) => value.trim())) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += character;
+    }
+  }
+  if (quoted) throw new Error("The CSV contains an unclosed quoted field.");
+  if (field.length || row.length) {
+    row.push(field);
+    if (row.some((value) => value.trim())) rows.push(row);
+  }
+  return rows;
+}
+
+function parseLessonCsv(text) {
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
+  const headers = rows.shift()?.map((header) => header.trim().toLowerCase());
+  const required = ["word", "part_of_speech", "definition", "example", "level", "topic"];
+  if (!headers || required.some((header) => !headers.includes(header))) {
+    throw new Error(`CSV header must include: ${required.join(", ")}.`);
+  }
+  if (rows.length > 500) throw new Error("Please import no more than 500 lessons at a time.");
+  return rows.map((values, index) => {
+    const lesson = Object.fromEntries(required.map((key) => [key, String(values[headers.indexOf(key)] || "").trim()]));
+    const rowNumber = index + 2;
+    const limits = { word: 80, part_of_speech: 40, definition: 500, example: 500, topic: 60 };
+    const errors = required.filter((key) => !lesson[key] || (limits[key] && lesson[key].length > limits[key]));
+    if (!LEVELS.has(lesson.level)) errors.push("level (use B1, B2, or C1)");
+    return { lesson, rowNumber, errors };
+  });
+}
+
+async function importLessonsFromCsv(file) {
+  if (currentProfile?.role !== "admin") throw new Error("Only the admin can import lessons.");
+  const status = document.querySelector("#import-status");
+  const button = document.querySelector("#csv-import-button");
+  button.disabled = true;
+  status.className = "import-status";
+  status.textContent = "Reading your word list…";
+  let imported = 0;
+  try {
+    const rows = parseLessonCsv(await file.text());
+    const knownWords = new Set(lessons.map(({ word }) => word.toLocaleLowerCase()));
+    const rejected = [];
+    const ready = [];
+    rows.forEach(({ lesson, rowNumber, errors }) => {
+      if (errors.length) {
+        rejected.push(`row ${rowNumber}: ${errors.join(", ")}`);
+      } else if (knownWords.has(lesson.word.toLocaleLowerCase())) {
+        rejected.push(`row ${rowNumber}: “${lesson.word}” already exists`);
+      } else {
+        knownWords.add(lesson.word.toLocaleLowerCase());
+        ready.push({ ...lesson, created_by: currentUser.id });
+      }
+    });
+    if (!ready.length) {
+      const detail = rejected.slice(0, 4).join("; ");
+      throw new Error(detail ? `No new lessons to import. ${detail}` : "This CSV has no lesson rows.");
+    }
+
+    for (let offset = 0; offset < ready.length; offset += 100) {
+      const { error } = await supabaseClient.from("lessons").insert(ready.slice(offset, offset + 100));
+      if (error) throw error;
+      imported += Math.min(100, ready.length - offset);
+    }
+    await loadLessons();
+    const skipped = rejected.length;
+    status.textContent = `Added ${imported} ${imported === 1 ? "word" : "words"}${skipped ? ` · skipped ${skipped} invalid or duplicate ${skipped === 1 ? "row" : "rows"}${rejected.length ? ` (${rejected.slice(0, 3).join("; ")}${rejected.length > 3 ? "; …" : ""})` : ""}` : ""}.`;
+    status.classList.add("success");
+    document.querySelector("#csv-import-form").reset();
+    document.querySelector("#csv-file-name").textContent = "Choose a .csv file";
+  } catch (error) {
+    console.error("CSV import failed:", error);
+    if (imported) {
+      try {
+        await loadLessons();
+      } catch (refreshError) {
+        console.error("Imported lessons could not be refreshed:", refreshError);
+        showAppError("Some lessons were imported, but the shelf could not be refreshed. Reload the page to see the latest words.");
+      }
+    }
+    status.textContent = imported
+      ? `Added ${imported} words before import stopped. ${error.message || "Check the connection and retry with the remaining rows."}`
+      : error.message || "We couldn’t import this CSV. Check its format and try again.";
+    status.classList.add("error");
+  } finally {
+    button.disabled = !document.querySelector("#csv-file").files.length;
+  }
 }
 
 function renderAdminLessons() {
@@ -195,42 +350,89 @@ function shuffle(items) {
 }
 
 function createQuizQuestions() {
-  return shuffle([...lessons]).slice(0, Math.min(5, lessons.length)).map((correct) => ({
+  const pool = lessons.filter((lesson) => quizLevel === "all" || lesson.level === quizLevel);
+  const eligible = quizMode === "sentence"
+    ? pool.filter(({ word, example }) => new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(example))
+    : pool;
+  return shuffle([...eligible]).slice(0, Math.min(quizLength, eligible.length)).map((correct) => ({
     correct,
     choices: shuffle([
-      ...shuffle(lessons.filter(({ id }) => id !== correct.id)).slice(0, 3),
+      ...shuffle(pool.filter(({ id }) => id !== correct.id)).slice(0, 3),
       correct,
     ]),
   }));
+}
+
+function renderQuizSetup() {
+  let highScore = 0;
+  try {
+    highScore = Number(localStorage.getItem(`wordstep:highscore:${currentUser.id}`) || 0);
+  } catch (error) {
+    console.error("Quiz personal best could not be loaded:", error);
+  }
+  const levels = ["all", "B1", "B2", "C1"];
+  const modes = [
+    { id: "meaning", title: "Find the word", description: "Read a meaning and choose the matching word.", icon: "icon-book" },
+    { id: "definition", title: "Know the meaning", description: "See a word and pick what it means.", icon: "icon-spark" },
+    { id: "sentence", title: "Complete the sentence", description: "Use context clues to fill in the missing word.", icon: "icon-file" },
+  ];
+  const levelCount = quizLevel === "all" ? lessons.length : lessons.filter(({ level }) => level === quizLevel).length;
+  const sentenceCount = lessons.filter(({ word, example, level }) =>
+    (quizLevel === "all" || level === quizLevel)
+      && new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(example)).length;
+  const eligibleCount = quizMode === "sentence" ? sentenceCount : levelCount;
+  quizLength = Math.min(quizLength, eligibleCount || 5);
+  const lengths = [5, 10, 20].filter((length) => length <= eligibleCount);
+  if (eligibleCount > 0 && !lengths.includes(eligibleCount)) lengths.push(eligibleCount);
+  lengths.sort((a, b) => a - b);
+
+  quizCard.innerHTML = `
+    <div class="quest-welcome">
+      <div class="quest-welcome-copy">
+        <span class="quest-kicker"><svg aria-hidden="true"><use href="./icons.svg#icon-target"></use></svg> READY, SET, LEARN</span>
+        <h2>Make today’s words<br><span>count.</span></h2>
+        <p>Pick a challenge, find your rhythm, and earn points as you go.</p>
+        <div class="quest-personal-best"><span class="best-icon"><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg></span><span><small>PERSONAL BEST</small><strong>${highScore} pts</strong></span></div>
+      </div>
+      <div class="quest-orbit" aria-hidden="true"><span class="orbit-ring orbit-ring-one"></span><span class="orbit-ring orbit-ring-two"></span><span class="orbit-core"><svg><use href="./icons.svg#icon-spark"></use></svg></span><span class="orbit-word orbit-word-one">learn</span><span class="orbit-word orbit-word-two">grow</span><span class="orbit-word orbit-word-three">repeat</span></div>
+    </div>
+    <div class="quest-setup">
+      <div class="setup-section">
+        <div class="setup-title"><span class="setup-step">01</span><span><strong>Choose your level</strong><small>Pick a level, or mix them all.</small></span></div>
+        <div class="level-picks">${levels.map((level) => {
+          const count = level === "all" ? lessons.length : lessons.filter(({ level: itemLevel }) => itemLevel === level).length;
+          return `<button class="level-pick ${quizLevel === level ? "selected" : ""}" type="button" data-quiz-level="${level}" aria-pressed="${quizLevel === level}" ${count === 0 && level !== "all" ? "disabled" : ""}><span>${level === "all" ? "All levels" : level}</span><small>${count} ${count === 1 ? "word" : "words"}</small></button>`;
+        }).join("")}</div>
+      </div>
+      <div class="setup-section">
+        <div class="setup-title"><span class="setup-step">02</span><span><strong>Choose your challenge</strong><small>Switch it up to strengthen your recall.</small></span></div>
+        <div class="mode-picks">${modes.map((mode) => `<button class="mode-pick ${quizMode === mode.id ? "selected" : ""}" type="button" data-quiz-mode="${mode.id}" aria-pressed="${quizMode === mode.id}" ${mode.id === "sentence" && sentenceCount === 0 ? "disabled" : ""}><span class="mode-icon"><svg aria-hidden="true"><use href="./icons.svg#${mode.icon}"></use></svg></span><span class="mode-copy"><strong>${mode.title}</strong><small>${mode.description}</small></span><span class="mode-check"><svg aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg></span></button>`).join("")}</div>
+      </div>
+      <div class="setup-bottom">
+        <div class="round-length"><div class="setup-title"><span class="setup-step">03</span><span><strong>Round length</strong><small>${eligibleCount} words available</small></span></div><div class="length-picks">${lengths.map((length) => `<button class="length-pick ${quizLength === length ? "selected" : ""}" type="button" data-quiz-length="${length}" aria-pressed="${quizLength === length}">${length} <small>words</small></button>`).join("")}</div></div>
+        <button class="button button-dark quest-start" id="quiz-start" type="button" ${eligibleCount < 4 ? "disabled" : ""}><span>Start quest</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button>
+      </div>
+      ${eligibleCount < 4 ? `<p class="quest-note">${quizMode === "sentence" ? "Add at least four words with matching example sentences to unlock this challenge." : "Add at least four words at this level to start a quest."}</p>` : ""}
+    </div>`;
 }
 
 function startQuiz() {
   quizQuestions = createQuizQuestions();
   quizIndex = 0;
   quizScore = 0;
-  if (lessons.length < 4) {
-    quizCard.innerHTML = `
-      <div class="quiz-topline"><span class="quiz-kicker"><svg aria-hidden="true"><use href="/icons.svg#icon-target"></use></svg> WORD CHECK</span><span class="quiz-progress-text" id="quiz-progress-text">COMING UP</span></div>
-      <div class="progress-track"><span id="quiz-progress"></span></div>
-      <div class="quiz-empty">
-        <span class="quiz-result-mark"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span>
-        <h2>Just a few more words.</h2>
-        <p>Add at least four lessons before starting a quiz.</p>
-      </div>`;
+  quizPoints = 0;
+  quizStreak = 0;
+  quizBestStreak = 0;
+  if (quizQuestions.length < 4) {
+    renderQuizSetup();
     return;
   }
-
-  quizCard.innerHTML = `
-    <div class="quiz-topline"><span class="quiz-kicker"><svg aria-hidden="true"><use href="/icons.svg#icon-target"></use></svg> WORD CHECK</span><span class="quiz-progress-text" id="quiz-progress-text"></span></div>
-    <div class="progress-track"><span id="quiz-progress"></span></div>
-    <div class="quiz-question-area">
-      <span class="question-label">WHICH WORD MATCHES THIS MEANING?</span>
-      <h2 id="quiz-question"></h2>
-      <div class="answer-list" id="answer-list"></div>
-      <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
-      <div class="quiz-actions"><span class="quiz-hint"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg> Take your time. You can always try again.</span><button class="button button-dark" id="quiz-next" type="button" disabled></button></div>
-    </div>`;
   renderQuestion();
+}
+
+function renderQuizShell() {
+  const progress = quizQuestions.length ? (quizIndex / quizQuestions.length) * 100 : 0;
+  return `<div class="quest-gamebar"><button class="quest-exit" id="quiz-exit" type="button"><svg aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg> Quit quest</button><div class="quest-progress-copy"><span>YOUR PROGRESS</span><strong id="quiz-progress-text"></strong></div><div class="quest-live-stats"><span class="live-stat"><svg aria-hidden="true"><use href="./icons.svg#icon-flame"></use></svg><b id="quiz-streak">${quizStreak}</b><small>streak</small></span><span class="live-stat live-points"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><b id="quiz-points">${quizPoints}</b><small>pts</small></span></div></div><div class="quest-progress-track"><span id="quiz-progress" style="width:${progress}%"></span></div><div class="quiz-question-area"><span class="question-label" id="quiz-prompt-label"></span><h2 id="quiz-question"></h2><div class="answer-list" id="answer-list" role="group" aria-labelledby="quiz-question"></div><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div><div class="quiz-actions"><span class="quiz-hint" id="quiz-hint"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg> Take a moment — you’ve got this.</span><button class="button button-dark" id="quiz-next" type="button" disabled><span>Check answer</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button></div></div>`;
 }
 
 function renderQuestion() {
@@ -239,33 +441,52 @@ function renderQuestion() {
 
   selectedAnswer = -1;
   answered = false;
-  document.querySelector("#quiz-progress-text").textContent = `QUESTION ${quizIndex + 1} OF ${quizQuestions.length}`;
-  document.querySelector("#quiz-progress").style.width = `${(quizIndex / quizQuestions.length) * 100}%`;
-  document.querySelector("#quiz-question").textContent = question.correct.definition;
+  quizCard.innerHTML = renderQuizShell();
+  document.querySelector("#quiz-progress-text").textContent = `${quizIndex + 1} / ${quizQuestions.length}`;
+  const prompts = {
+    meaning: ["WHICH WORD MATCHES THIS MEANING?", question.correct.definition],
+    definition: ["WHAT DOES THIS WORD MEAN?", question.correct.word],
+    sentence: ["COMPLETE THE SENTENCE", question.correct.example.replace(new RegExp(`\\b${question.correct.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"), "________")],
+  };
+  document.querySelector("#quiz-prompt-label").textContent = prompts[quizMode][0];
+  document.querySelector("#quiz-question").textContent = prompts[quizMode][1];
   document.querySelector("#quiz-feedback").textContent = "";
   document.querySelector("#quiz-feedback").className = "quiz-feedback";
   const answers = document.querySelector("#answer-list");
-  answers.innerHTML = question.choices.map(({ word }, index) => `
-    <button class="answer-option" type="button" data-answer="${index}">
-      <span class="answer-letter">${String.fromCharCode(65 + index)}</span><span class="answer-text">${escapeHtml(word)}</span>
-    </button>`).join("");
-  const next = document.querySelector("#quiz-next");
-  next.disabled = true;
-  next.innerHTML = 'Check answer <svg class="button-arrow" aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg>';
+  answers.innerHTML = question.choices.map((choice, index) => {
+    const label = quizMode === "definition" ? choice.definition : choice.word;
+    return `
+    <button class="answer-option" type="button" data-answer="${index}" aria-pressed="false">
+      <span class="answer-letter">${String.fromCharCode(65 + index)}</span><span class="answer-text">${escapeHtml(label)}</span>
+    </button>`;
+  }).join("");
 }
 
 function renderQuizResult() {
-  document.querySelector("#quiz-progress-text").textContent = "ROUND COMPLETE";
-  document.querySelector("#quiz-progress").style.width = "100%";
+  const highScoreKey = `wordstep:highscore:${currentUser.id}`;
+  let previousBest = 0;
+  try {
+    previousBest = Number(localStorage.getItem(highScoreKey) || 0);
+  } catch (error) {
+    console.error("Quiz personal best could not be loaded:", error);
+  }
   const perfect = quizScore === quizQuestions.length;
+  const isNewBest = quizPoints > previousBest;
+  if (isNewBest) {
+    try {
+      localStorage.setItem(highScoreKey, String(quizPoints));
+    } catch (error) {
+      console.error("Quiz best score could not be saved:", error);
+    }
+  }
   quizCard.innerHTML = `
     <div class="quiz-result">
-      <span class="quiz-result-mark"><svg aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg></span>
-      <span class="eyebrow">${perfect ? "A PERFECT LITTLE ROUND" : "LOOK AT YOU GO"}</span>
-      <h2>${quizScore} out of ${quizQuestions.length} — nicely done.</h2>
-      <p>${perfect ? "Every word in place. That’s something to feel good about." : "Every try helps the words settle in. Keep going at your own pace."}</p>
-      <span class="quiz-xp">✦ ${quizScore * 10} practice points earned</span>
-      <button class="button button-dark" id="quiz-retry" type="button">Try another round <svg class="button-arrow" aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg></button>
+      <span class="quest-result-burst"><span class="quiz-result-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg></span><span class="result-spark result-spark-one">✦</span><span class="result-spark result-spark-two">✧</span></span>
+      <span class="eyebrow">${isNewBest ? "NEW PERSONAL BEST!" : perfect ? "FLAWLESS QUEST!" : "QUEST COMPLETE!"}</span>
+      <h2>${quizScore} <span>/ ${quizQuestions.length}</span></h2>
+      <p>${perfect ? "Every word was right on target. Look at you go!" : "Every answer is progress. Your new words are settling in."}</p>
+      <div class="result-stats"><span><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><strong>${quizPoints}</strong><small>points earned</small></span><span><svg aria-hidden="true"><use href="./icons.svg#icon-flame"></use></svg><strong>${quizBestStreak}</strong><small>best streak</small></span><span><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg><strong>${Math.round((quizScore / quizQuestions.length) * 100)}%</strong><small>accuracy</small></span></div>
+      <div class="result-actions"><button class="button button-quiet" id="quiz-back-setup" type="button">Change challenge</button><button class="button button-dark" id="quiz-retry" type="button">Play again <svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button></div>
     </div>`;
 }
 
@@ -285,12 +506,25 @@ function submitAnswer() {
     const feedback = document.querySelector("#quiz-feedback");
     if (selectedAnswer === correctIndex) {
       quizScore += 1;
-      feedback.innerHTML = `<strong>That’s right!</strong> ${escapeHtml(question.correct.example)}`;
+      quizStreak += 1;
+      quizBestStreak = Math.max(quizBestStreak, quizStreak);
+      quizPoints += 10 + Math.min(quizStreak - 1, 5) * 2;
+      feedback.innerHTML = `<span class="feedback-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg></span><span><strong>${quizStreak > 1 ? `${quizStreak} in a row!` : "That’s right!"}</strong><small>${escapeHtml(question.correct.example)}</small></span>`;
+      feedback.classList.add("correct-feedback");
     } else {
-      feedback.innerHTML = `<strong>Not quite — no worries.</strong> “${escapeHtml(question.correct.word)}” is the right fit. ${escapeHtml(question.correct.example)}`;
+      quizStreak = 0;
+      feedback.innerHTML = `<span class="feedback-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span><span><strong>Good try! The answer is “${escapeHtml(question.correct.word)}”.</strong><small>${escapeHtml(question.correct.definition)} ${escapeHtml(question.correct.example)}</small></span>`;
       feedback.classList.add("incorrect-feedback");
     }
-    document.querySelector("#quiz-next").innerHTML = 'Next word <svg class="button-arrow" aria-hidden="true"><use href="/icons.svg#icon-arrow"></use></svg>';
+    document.querySelector("#quiz-streak").textContent = String(quizStreak);
+    document.querySelector("#quiz-points").textContent = String(quizPoints);
+    const progress = ((quizIndex + 1) / quizQuestions.length) * 100;
+    document.querySelector("#quiz-progress").style.width = `${progress}%`;
+    const nextButton = document.querySelector("#quiz-next");
+    nextButton.disabled = false;
+    nextButton.innerHTML = quizIndex + 1 === quizQuestions.length
+      ? '<span>See results</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>'
+      : '<span>Next word</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>';
     return;
   }
 
@@ -301,7 +535,7 @@ function submitAnswer() {
 function clearLessonForm() {
   lessonForm.reset();
   lessonForm.querySelector("#lesson-id").value = "";
-  lessonForm.elements.level.value = "A2";
+  lessonForm.elements.level.value = "B1";
   lessonForm.elements.topic.value = "Everyday";
   document.querySelector("#lesson-form-title").textContent = "Create a word lesson";
   document.querySelector("#lesson-submit span").textContent = "Add lesson";
@@ -426,6 +660,9 @@ function wireEvents() {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
 
+  document.querySelector("#join-button").addEventListener("click", showLoginPanel);
+  document.querySelector("#login-back").addEventListener("click", showWelcome);
+
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     showLoginError("");
@@ -456,7 +693,57 @@ function wireEvents() {
 
   wordList.addEventListener("click", handleWordActions);
   wordSearch.addEventListener("input", renderWords);
+  levelFilter.addEventListener("change", renderWords);
+  topicFilter.addEventListener("change", renderWords);
+  document.querySelector("#saved-filter").addEventListener("click", (event) => {
+    const button = event.currentTarget;
+    const pressed = button.getAttribute("aria-pressed") !== "true";
+    button.setAttribute("aria-pressed", String(pressed));
+    renderWords();
+  });
+  wordList.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest("#clear-filters")) return;
+    wordSearch.value = "";
+    levelFilter.value = "all";
+    topicFilter.value = "all";
+    document.querySelector("#saved-filter").setAttribute("aria-pressed", "false");
+    renderWords();
+    wordSearch.focus();
+  });
   lessonForm.addEventListener("submit", handleLessonSubmit);
+  const csvFile = document.querySelector("#csv-file");
+  const csvImportForm = document.querySelector("#csv-import-form");
+  csvFile.addEventListener("change", () => {
+    const file = csvFile.files[0];
+    document.querySelector("#csv-file-name").textContent = file?.name || "Choose a .csv file";
+    document.querySelector("#csv-import-button").disabled = !file;
+    document.querySelector("#import-status").textContent = "";
+    document.querySelector("#import-status").className = "import-status";
+  });
+  csvImportForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const file = csvFile.files[0];
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      const status = document.querySelector("#import-status");
+      status.textContent = "This file is larger than 2 MB. Split it into smaller CSV files and try again.";
+      status.className = "import-status error";
+      return;
+    }
+    importLessonsFromCsv(file);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey
+      && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) {
+      event.preventDefault();
+      wordSearch.focus();
+    }
+    if (event.key === "Escape" && document.activeElement === wordSearch) {
+      wordSearch.value = "";
+      renderWords();
+      wordSearch.blur();
+    }
+  });
   document.querySelector("#lesson-cancel").addEventListener("click", clearLessonForm);
   document.querySelector("#lesson-manager-list").addEventListener("click", (event) => {
     handleLessonManager(event).catch((error) => showRequestError(
@@ -467,11 +754,38 @@ function wireEvents() {
   });
   quizCard.addEventListener("click", (event) => {
     if (!(event.target instanceof Element)) return;
+    const levelButton = event.target.closest("[data-quiz-level]");
+    if (levelButton && !levelButton.disabled) {
+      quizLevel = levelButton.dataset.quizLevel;
+      renderQuizSetup();
+      return;
+    }
+    const modeButton = event.target.closest("[data-quiz-mode]");
+    if (modeButton && !modeButton.disabled) {
+      quizMode = modeButton.dataset.quizMode;
+      renderQuizSetup();
+      return;
+    }
+    const lengthButton = event.target.closest("[data-quiz-length]");
+    if (lengthButton) {
+      quizLength = Number(lengthButton.dataset.quizLength);
+      renderQuizSetup();
+      return;
+    }
+    if (event.target.closest("#quiz-start")) {
+      startQuiz();
+      return;
+    }
+    if (event.target.closest("#quiz-exit") || event.target.closest("#quiz-back-setup")) {
+      renderQuizSetup();
+      return;
+    }
     const answer = event.target.closest("[data-answer]");
     if (answer && !answered) {
       selectedAnswer = Number(answer.dataset.answer);
       quizCard.querySelectorAll(".answer-option").forEach((option, index) => {
         option.classList.toggle("selected", index === selectedAnswer);
+        option.setAttribute("aria-pressed", String(index === selectedAnswer));
       });
       document.querySelector("#quiz-next").disabled = false;
       return;
@@ -489,6 +803,7 @@ function wireEvents() {
       lessons = [];
       appShell.hidden = true;
       loginScreen.hidden = false;
+      showWelcome();
       loginForm.reset();
       showLoginError("");
     } catch (error) {
