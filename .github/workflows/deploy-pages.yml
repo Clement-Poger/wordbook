@@ -20,16 +20,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Create public Supabase configuration
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "Set the SUPABASE_URL and SUPABASE_ANON_KEY repository secrets before deploying."
-            exit 1
-          fi
-          node -e 'const fs = require("node:fs"); const config = {url: process.env.SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY}; fs.writeFileSync("public/supabase-config.js", `window.WORDSTEP_SUPABASE_CONFIG = ${JSON.stringify(config)};`);'
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
