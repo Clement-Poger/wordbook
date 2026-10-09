@@ -2,6 +2,10 @@
   elios: "elios@word.book",
   eva: "eva@word.book",
 });
+const SUPABASE_CONFIG = Object.freeze({
+  url: "https://henwzmiilnmzdwpmzunx.supabase.co",
+  anonKey: "sb_publishable_V78pOOyxgz9pL6s6sCEbnQ_j5nx7W9u",
+});
 const LEVELS = new Set(["B1", "B2", "C1"]);
 
 const loginScreen = document.querySelector("#login-screen");
