@@ -133,7 +133,6 @@ function renderWords() {
   document.querySelector("#word-count").textContent = String(lessons.length);
   document.querySelector("#saved-count").textContent = String(savedWords.size);
   document.querySelector("#saved-filter-count").textContent = String(savedWords.size);
-  document.querySelector("#results-count").textContent = `${visible.length} ${visible.length === 1 ? "word" : "words"}`;
 
   if (!visible.length) {
     const hasWords = lessons.length > 0;
