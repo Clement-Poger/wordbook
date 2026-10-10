@@ -272,7 +272,7 @@ button { color: inherit; }
 .daily-note p { margin: 0; color: #88877e; font-size: 10px; line-height: 1.65; }
 .daily-note strong { color: #565b50; font-size: 10px; }
 .account-button { display: flex; width: 100%; align-items: center; gap: 10px; padding: 11px 4px 2px; border: 0; border-top: 1px solid #eeece6; background: transparent; cursor: pointer; text-align: left; }
-.avatar, .topbar-avatar { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #efe6dc; color: #876a52; font-family: var(--serif); font-size: 14px; }
+.avatar, .topbar-avatar { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #efe6dc; color: #876a52; font-family: var(--serif); font-size: 14px; object-fit: cover; }
 .account-name { display: grid; gap: 3px; }
 .account-name strong { max-width: 135px; overflow: hidden; color: #3e403a; font-size: 11px; font-weight: 600; text-overflow: ellipsis; }
 .account-name small { color: #9a9992; font-size: 9px; }

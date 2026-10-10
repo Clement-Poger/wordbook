@@ -58,7 +58,7 @@
 
     <div class="app-shell" id="app-shell" hidden>
       <aside class="sidebar">
-        <a class="brand" href="#" data-view="words" aria-label="WordBook home">
+        <a class="brand" data-view="words" aria-label="WordBook home">
           <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
           <span>WordBook</span>
         </a>
@@ -81,7 +81,7 @@
             <p><strong>Small steps count.</strong><br>A few new words today go a long way.</p>
           </div>
           <button class="account-button" id="logout-button" type="button" aria-label="Sign out">
-            <span class="avatar" id="avatar">W</span>
+            <img class="avatar" id="avatar" src="./assets/clement.png" alt="" aria-hidden="true">
             <span class="account-name"><strong id="account-username">Learner</strong><small id="account-role">Learner</small></span>
             <img src="./assets/deconnexion-alt.svg" class="logout-icon icon-image" alt="" aria-hidden="true">
           </button>
@@ -91,7 +91,6 @@
       <main class="main-content">
         <header class="topbar">
           <span class="breadcrumb"><span>My learning</span><span class="breadcrumb-divider">/</span><strong id="breadcrumb-page">Word library</strong></span>
-          <div class="topbar-right"><span class="today-label" id="today-label"></span><span class="topbar-avatar" id="topbar-avatar">W</span></div>
         </header>
         <p class="app-error" id="app-error" role="alert" hidden></p>
         <section class="view-panel" id="words-view" aria-labelledby="page-title">
@@ -101,9 +100,9 @@
             <button class="button button-dark" type="button" data-view="quiz"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><span>Practice now</span><img src="./assets/arrow-down.svg" class="button-arrow icon-image" alt="" aria-hidden="true"></button>
           </div>
           <div class="stats-row">
-            <div class="stat-card"><span class="stat-icon stat-icon-lavender"><img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">WORDS TO EXPLORE</span><strong id="word-count">0</strong></span><span class="stat-aside">in your library</span></div>
-            <div class="stat-card"><span class="stat-icon stat-icon-peach"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">SAVED FOR LATER</span><strong id="saved-count">0</strong></span><span class="stat-aside">words saved</span></div>
-            <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span><span class="stat-aside">a little practice</span></div>
+            <div class="stat-card"><span class="stat-icon stat-icon-lavender"><img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">WORDS TO EXPLORE</span><strong id="word-count">0</strong></span></div>
+            <div class="stat-card"><span class="stat-icon stat-icon-peach"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">SAVED FOR LATER</span><strong id="saved-count">0</strong></span></div>
+            <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span></div>
           </div>
           <div class="library-toolbar">
             <div><span class="eyebrow">BROWSE & DISCOVER</span><h2>Find your next favorite word</h2><p>Search meanings, examples, and topics. Save words to revisit them later.</p></div>
@@ -113,7 +112,6 @@
             <label class="filter-control"><span>Level</span><select id="level-filter" aria-label="Filter by level"><option value="all">All levels</option><option>B1</option><option>B2</option><option>C1</option></select></label>
             <label class="filter-control"><span>Topic</span><select id="topic-filter" aria-label="Filter by topic"><option value="all">All topics</option></select></label>
             <button class="filter-toggle" id="saved-filter" type="button" aria-pressed="false"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"> Saved <span id="saved-filter-count">0</span></button>
-            <span class="results-count" id="results-count" aria-live="polite"></span>
           </div>
           <div class="word-list" id="word-list" aria-live="polite"></div>
           <p class="list-endnote"><span></span> That's your little collection for today <span></span></p>

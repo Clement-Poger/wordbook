@@ -2,6 +2,10 @@
   elios: "elios@word.book",
   eva: "eva@word.book",
 });
+const PROFILE_IMAGES = Object.freeze({
+  elios: "./assets/clement.png",
+  eva: "./assets/eva.webp",
+});
 const SUPABASE_CONFIG = Object.freeze({
   url: "https://henwzmiilnmzdwpmzunx.supabase.co",
   anonKey: "sb_publishable_V78pOOyxgz9pL6s6sCEbnQ_j5nx7W9u",
@@ -54,12 +58,6 @@ function showLoginError(message) {
   loginError.textContent = message;
 }
 
-function showAppError(message) {
-  const error = document.querySelector("#app-error");
-  error.textContent = message;
-  error.hidden = !message;
-}
-
 function showWelcome() {
   loginPanel.hidden = true;
   welcomeScreen.hidden = false;
@@ -89,16 +87,9 @@ function readSavedWords() {
 }
 
 function updateAccount() {
-  const initial = currentProfile.username.charAt(0).toUpperCase();
   document.querySelector("#account-username").textContent = currentProfile.username;
   document.querySelector("#account-role").textContent = currentProfile.role === "admin" ? "Admin" : "Learner";
-  document.querySelector("#avatar").textContent = initial;
-  document.querySelector("#topbar-avatar").textContent = initial;
-  document.querySelector("#today-label").textContent = new Intl.DateTimeFormat("en", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  }).format(new Date());
+  document.querySelector("#avatar").src = PROFILE_IMAGES[currentProfile.username];
   document.querySelector("#admin-nav-item").hidden = currentProfile.role !== "admin";
 }
 
@@ -271,7 +262,6 @@ async function importLessonsFromCsv(file) {
         await loadLessons();
       } catch (refreshError) {
         console.error("Imported lessons could not be refreshed:", refreshError);
-        showAppError("Some lessons were imported, but the shelf could not be refreshed. Reload the page to see the latest words.");
       }
     }
     status.textContent = imported
@@ -303,7 +293,6 @@ function renderAdminLessons() {
 }
 
 async function loadLessons() {
-  showAppError("");
   const { data, error } = await supabaseClient
     .from("lessons")
     .select("id, word, part_of_speech, definition, example, level, topic")
@@ -341,7 +330,6 @@ async function enterAccount(user) {
   try {
     await loadLessons();
   } catch (error) {
-    showAppError(error.message || "We couldn’t load the lesson shelf.");
   }
 }
 
@@ -586,7 +574,6 @@ function handleWordActions(event) {
     localStorage.setItem(storageKey(), JSON.stringify([...savedWords]));
   } catch (error) {
     console.error("Saved words could not be stored:", error);
-    showAppError("Your saved words changed for this visit but couldn’t be saved on this device.");
   }
   renderWords();
 }
@@ -630,7 +617,6 @@ async function handleLessonSubmit(event) {
     }
     clearLessonForm();
     await loadLessons();
-    showAppError("");
   } catch (error) {
     showRequestError(errorMessage, "We couldn’t save this lesson.", error);
   } finally {
@@ -812,7 +798,6 @@ function wireEvents() {
       showLoginError("");
     } catch (error) {
       console.error("Sign-out failed:", error);
-      showAppError("We couldn’t sign you out. Please try again.");
     }
   });
 }
