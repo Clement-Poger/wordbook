@@ -30,7 +30,12 @@ button, input { font: inherit; }
 button { color: inherit; }
 [hidden] { display: none !important; }
 
-.icon-image { flex: 0 0 auto; object-fit: contain; filter: brightness(0) saturate(100%) invert(17%); }
+.icon-image { 
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto; 
+  object-fit: contain; 
+  filter: brightness(0) saturate(100%) invert(17%);  }
 .brand-mark .icon-image, .search-box .icon-image, .file-drop .icon-image, .quiz-footer .icon-image, .filter-toggle .icon-image, .result-stats .icon-image, .quiz-hint .icon-image {
   filter: brightness(0) saturate(100%) invert(39%) sepia(16%) saturate(1494%) hue-rotate(209deg) brightness(94%) contrast(88%);
 }
