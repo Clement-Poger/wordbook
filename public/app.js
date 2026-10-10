@@ -146,7 +146,7 @@ function renderWords() {
 
   if (!visible.length) {
     const hasWords = lessons.length > 0;
-    wordList.innerHTML = `<div class="empty-search"><span class="empty-search-icon"><svg aria-hidden="true"><use href="./icons.svg#icon-search"></use></svg></span><strong>${hasWords ? "No words match these filters" : "Your word shelf is ready to grow"}</strong><span>${hasWords ? "Try a different search or clear one of your filters." : "New lessons will show up here as soon as they are added."}</span>${hasWords ? '<button class="button button-quiet" id="clear-filters" type="button">Clear filters</button>' : ""}</div>`;
+    wordList.innerHTML = `<div class="empty-search"><span class="empty-search-icon"><img src="./assets/loupe.svg" class="icon-image" alt="" aria-hidden="true"></span><strong>${hasWords ? "No words match these filters" : "Your word shelf is ready to grow"}</strong><span>${hasWords ? "Try a different search or clear one of your filters." : "New lessons will show up here as soon as they are added."}</span>${hasWords ? '<button class="button button-quiet" id="clear-filters" type="button">Clear filters</button>' : ""}</div>`;
     return;
   }
 
@@ -154,16 +154,16 @@ function renderWords() {
     const saved = savedWords.has(lesson.id);
     return `
       <article class="word-card">
-        <div class="word-card-top"><span class="word-level level-${escapeHtml(lesson.level.toLowerCase())}">${escapeHtml(lesson.level)}</span><button class="save-button ${saved ? "saved" : ""}" type="button" data-save-word="${escapeHtml(lesson.id)}" aria-label="${saved ? "Remove" : "Save"} ${escapeHtml(lesson.word)} ${saved ? "from" : "to"} saved words" aria-pressed="${saved}"><svg aria-hidden="true"><use href="./icons.svg#icon-bookmark"></use></svg></button></div>
+        <div class="word-card-top"><span class="word-level level-${escapeHtml(lesson.level.toLowerCase())}">${escapeHtml(lesson.level)}</span><button class="save-button ${saved ? "saved" : ""}" type="button" data-save-word="${escapeHtml(lesson.id)}" aria-label="${saved ? "Remove" : "Save"} ${escapeHtml(lesson.word)} ${saved ? "from" : "to"} saved words" aria-pressed="${saved}"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"></button></div>
         <div class="word-heading">
           <h3 class="word-title">${escapeHtml(lesson.word)}</h3>
           <button class="speak-button" type="button" data-speak="${escapeHtml(lesson.word)}" aria-label="Hear ${escapeHtml(lesson.word)} pronounced">
-            <svg aria-hidden="true"><use href="./icons.svg#icon-volume"></use></svg>
+            <img src="./assets/haut-parleur.svg" class="icon-image" alt="" aria-hidden="true">
           </button>
         </div>
         <span class="word-part">${escapeHtml(lesson.part_of_speech)}</span>
         <p class="word-definition">${escapeHtml(lesson.definition)}</p>
-        <div class="word-card-bottom"><span class="word-topic"><svg aria-hidden="true"><use href="./icons.svg#icon-tag"></use></svg>${escapeHtml(lesson.topic)}</span><p class="word-example">${escapeHtml(lesson.example)}</p></div>
+        <div class="word-card-bottom"><span class="word-topic"><img src="./assets/tags.svg" class="icon-image" alt="" aria-hidden="true">${escapeHtml(lesson.topic)}</span><p class="word-example">${escapeHtml(lesson.example)}</p></div>
       </article>`;
   }).join("");
 }
@@ -376,9 +376,9 @@ function renderQuizSetup() {
   }
   const levels = ["all", "B1", "B2", "C1"];
   const modes = [
-    { id: "meaning", title: "Find the word", description: "Read a meaning and choose the matching word.", icon: "icon-book" },
-    { id: "definition", title: "Know the meaning", description: "See a word and pick what it means.", icon: "icon-spark" },
-    { id: "sentence", title: "Complete the sentence", description: "Use context clues to fill in the missing word.", icon: "icon-file" },
+    { id: "meaning", title: "Find the word", description: "Read a meaning and choose the matching word.", icon: "./assets/livre.svg" },
+    { id: "definition", title: "Know the meaning", description: "See a word and pick what it means.", icon: "./assets/logo.svg" },
+    { id: "sentence", title: "Complete the sentence", description: "Use context clues to fill in the missing word.", icon: "./assets/document.svg" },
   ];
   const levelCount = quizLevel === "all" ? lessons.length : lessons.filter(({ level }) => level === quizLevel).length;
   const sentenceCount = lessons.filter(({ word, example, level }) =>
@@ -393,12 +393,12 @@ function renderQuizSetup() {
   quizCard.innerHTML = `
     <div class="quest-welcome">
       <div class="quest-welcome-copy">
-        <span class="quest-kicker"><svg aria-hidden="true"><use href="./icons.svg#icon-target"></use></svg> READY, SET, LEARN</span>
+        <span class="quest-kicker"><img src="./assets/fleche-dans-le-mille.svg" class="icon-image" alt="" aria-hidden="true"> READY, SET, LEARN</span>
         <h2>Make today’s words<br><span>count.</span></h2>
         <p>Pick a challenge, find your rhythm, and earn points as you go.</p>
-        <div class="quest-personal-best"><span class="best-icon"><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg></span><span><small>PERSONAL BEST</small><strong>${highScore} pts</strong></span></div>
+        <div class="quest-personal-best"><span class="best-icon"><img src="./assets/badge.svg" class="icon-image" alt="" aria-hidden="true"></span><span><small>PERSONAL BEST</small><strong>${highScore} pts</strong></span></div>
       </div>
-      <div class="quest-orbit" aria-hidden="true"><span class="orbit-ring orbit-ring-one"></span><span class="orbit-ring orbit-ring-two"></span><span class="orbit-core"><svg><use href="./icons.svg#icon-spark"></use></svg></span><span class="orbit-word orbit-word-one">learn</span><span class="orbit-word orbit-word-two">grow</span><span class="orbit-word orbit-word-three">repeat</span></div>
+      <div class="quest-orbit" aria-hidden="true"><span class="orbit-ring orbit-ring-one"></span><span class="orbit-ring orbit-ring-two"></span><span class="orbit-core"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="orbit-word orbit-word-one">learn</span><span class="orbit-word orbit-word-two">grow</span><span class="orbit-word orbit-word-three">repeat</span></div>
     </div>
     <div class="quest-setup">
       <div class="setup-section">
@@ -410,11 +410,11 @@ function renderQuizSetup() {
       </div>
       <div class="setup-section">
         <div class="setup-title"><span class="setup-step">02</span><span><strong>Choose your challenge</strong><small>Switch it up to strengthen your recall.</small></span></div>
-        <div class="mode-picks">${modes.map((mode) => `<button class="mode-pick ${quizMode === mode.id ? "selected" : ""}" type="button" data-quiz-mode="${mode.id}" aria-pressed="${quizMode === mode.id}" ${mode.id === "sentence" && sentenceCount === 0 ? "disabled" : ""}><span class="mode-icon"><svg aria-hidden="true"><use href="./icons.svg#${mode.icon}"></use></svg></span><span class="mode-copy"><strong>${mode.title}</strong><small>${mode.description}</small></span><span class="mode-check"><svg aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg></span></button>`).join("")}</div>
+        <div class="mode-picks">${modes.map((mode) => `<button class="mode-pick ${quizMode === mode.id ? "selected" : ""}" type="button" data-quiz-mode="${mode.id}" aria-pressed="${quizMode === mode.id}" ${mode.id === "sentence" && sentenceCount === 0 ? "disabled" : ""}><span class="mode-icon"><img src="${mode.icon}" class="icon-image" alt="" aria-hidden="true"></span><span class="mode-copy"><strong>${mode.title}</strong><small>${mode.description}</small></span><span class="mode-check"><img src="./assets/coche.svg" class="icon-image" alt="" aria-hidden="true"></span></button>`).join("")}</div>
       </div>
       <div class="setup-bottom">
         <div class="round-length"><div class="setup-title"><span class="setup-step">03</span><span><strong>Round length</strong><small>${eligibleCount} words available</small></span></div><div class="length-picks">${lengths.map((length) => `<button class="length-pick ${quizLength === length ? "selected" : ""}" type="button" data-quiz-length="${length}" aria-pressed="${quizLength === length}">${length} <small>words</small></button>`).join("")}</div></div>
-        <button class="button button-dark quest-start" id="quiz-start" type="button" ${eligibleCount < 4 ? "disabled" : ""}><span>Start quest</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button>
+        <button class="button button-dark quest-start" id="quiz-start" type="button" ${eligibleCount < 4 ? "disabled" : ""}><span>Start quest</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true"></button>
       </div>
       ${eligibleCount < 4 ? `<p class="quest-note">${quizMode === "sentence" ? "Add at least four words with matching example sentences to unlock this challenge." : "Add at least four words at this level to start a quest."}</p>` : ""}
     </div>`;
@@ -436,7 +436,7 @@ function startQuiz() {
 
 function renderQuizShell() {
   const progress = quizQuestions.length ? (quizIndex / quizQuestions.length) * 100 : 0;
-  return `<div class="quest-gamebar"><button class="quest-exit" id="quiz-exit" type="button"><svg aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg> Quit quest</button><div class="quest-progress-copy"><span>YOUR PROGRESS</span><strong id="quiz-progress-text"></strong></div><div class="quest-live-stats"><span class="live-stat"><svg aria-hidden="true"><use href="./icons.svg#icon-flame"></use></svg><b id="quiz-streak">${quizStreak}</b><small>streak</small></span><span class="live-stat live-points"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><b id="quiz-points">${quizPoints}</b><small>pts</small></span></div></div><div class="quest-progress-track"><span id="quiz-progress" style="width:${progress}%"></span></div><div class="quiz-question-area"><span class="question-label" id="quiz-prompt-label"></span><h2 id="quiz-question"></h2><div class="answer-list" id="answer-list" role="group" aria-labelledby="quiz-question"></div><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div><div class="quiz-actions"><span class="quiz-hint" id="quiz-hint"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg> Take a moment — you’ve got this.</span><button class="button button-dark" id="quiz-next" type="button" disabled><span>Check answer</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button></div></div>`;
+  return `<div class="quest-gamebar"><button class="quest-exit" id="quiz-exit" type="button"><img src="./assets/arrow-right.svg" class="icon-image" alt="" aria-hidden="true"> Quit quest</button><div class="quest-progress-copy"><span>YOUR PROGRESS</span><strong id="quiz-progress-text"></strong></div><div class="quest-live-stats"><span class="live-stat"><img src="./assets/flamme.svg" class="icon-image" alt="" aria-hidden="true"><b id="quiz-streak">${quizStreak}</b><small>streak</small></span><span class="live-stat live-points"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><b id="quiz-points">${quizPoints}</b><small>pts</small></span></div></div><div class="quest-progress-track"><span id="quiz-progress" style="width:${progress}%"></span></div><div class="quiz-question-area"><span class="question-label" id="quiz-prompt-label"></span><h2 id="quiz-question"></h2><div class="answer-list" id="answer-list" role="group" aria-labelledby="quiz-question"></div><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div><div class="quiz-actions"><span class="quiz-hint" id="quiz-hint"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"> Take a moment — you’ve got this.</span><button class="button button-dark" id="quiz-next" type="button" disabled><span>Check answer</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true"></button></div></div>`;
 }
 
 function renderQuestion() {
@@ -485,12 +485,12 @@ function renderQuizResult() {
   }
   quizCard.innerHTML = `
     <div class="quiz-result">
-      <span class="quest-result-burst"><span class="quiz-result-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg></span><span class="result-spark result-spark-one">✦</span><span class="result-spark result-spark-two">✧</span></span>
+      <span class="quest-result-burst"><span class="quiz-result-mark"><img src="./assets/badge.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="result-spark result-spark-one">✦</span><span class="result-spark result-spark-two">✧</span></span>
       <span class="eyebrow">${isNewBest ? "NEW PERSONAL BEST!" : perfect ? "FLAWLESS QUEST!" : "QUEST COMPLETE!"}</span>
       <h2>${quizScore} <span>/ ${quizQuestions.length}</span></h2>
       <p>${perfect ? "Every word was right on target. Look at you go!" : "Every answer is progress. Your new words are settling in."}</p>
-      <div class="result-stats"><span><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><strong>${quizPoints}</strong><small>points earned</small></span><span><svg aria-hidden="true"><use href="./icons.svg#icon-flame"></use></svg><strong>${quizBestStreak}</strong><small>best streak</small></span><span><svg aria-hidden="true"><use href="./icons.svg#icon-award"></use></svg><strong>${Math.round((quizScore / quizQuestions.length) * 100)}%</strong><small>accuracy</small></span></div>
-      <div class="result-actions"><button class="button button-quiet" id="quiz-back-setup" type="button">Change challenge</button><button class="button button-dark" id="quiz-retry" type="button">Play again <svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button></div>
+      <div class="result-stats"><span><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><strong>${quizPoints}</strong><small>points earned</small></span><span><img src="./assets/flamme.svg" class="icon-image" alt="" aria-hidden="true"><strong>${quizBestStreak}</strong><small>best streak</small></span><span><img src="./assets/badge.svg" class="icon-image" alt="" aria-hidden="true"><strong>${Math.round((quizScore / quizQuestions.length) * 100)}%</strong><small>accuracy</small></span></div>
+      <div class="result-actions"><button class="button button-quiet" id="quiz-back-setup" type="button">Change challenge</button><button class="button button-dark" id="quiz-retry" type="button">Play again <img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true"></button></div>
     </div>`;
 }
 
@@ -513,11 +513,11 @@ function submitAnswer() {
       quizStreak += 1;
       quizBestStreak = Math.max(quizBestStreak, quizStreak);
       quizPoints += 10 + Math.min(quizStreak - 1, 5) * 2;
-      feedback.innerHTML = `<span class="feedback-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg></span><span><strong>${quizStreak > 1 ? `${quizStreak} in a row!` : "That’s right!"}</strong><small>${escapeHtml(question.correct.example)}</small></span>`;
+      feedback.innerHTML = `<span class="feedback-mark"><img src="./assets/coche.svg" class="icon-image" alt="" aria-hidden="true"></span><span><strong>${quizStreak > 1 ? `${quizStreak} in a row!` : "That’s right!"}</strong><small>${escapeHtml(question.correct.example)}</small></span>`;
       feedback.classList.add("correct-feedback");
     } else {
       quizStreak = 0;
-      feedback.innerHTML = `<span class="feedback-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span><span><strong>Good try! The answer is “${escapeHtml(question.correct.word)}”.</strong><small>${escapeHtml(question.correct.definition)} ${escapeHtml(question.correct.example)}</small></span>`;
+      feedback.innerHTML = `<span class="feedback-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span><strong>Good try! The answer is “${escapeHtml(question.correct.word)}”.</strong><small>${escapeHtml(question.correct.definition)} ${escapeHtml(question.correct.example)}</small></span>`;
       feedback.classList.add("incorrect-feedback");
     }
     document.querySelector("#quiz-streak").textContent = String(quizStreak);
@@ -527,8 +527,8 @@ function submitAnswer() {
     const nextButton = document.querySelector("#quiz-next");
     nextButton.disabled = false;
     nextButton.innerHTML = quizIndex + 1 === quizQuestions.length
-      ? '<span>See results</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>'
-      : '<span>Next word</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>';
+      ? '<span>See results</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">'
+      : '<span>Next word</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">';
     return;
   }
 

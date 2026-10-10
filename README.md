@@ -4,11 +4,11 @@
 
 WordBook est une application web pour enrichir son vocabulaire anglais et progresser à son rythme. Elle associe une bibliothèque de mots organisée par niveau à des quiz courts, interactifs et agréables à refaire.
 
-**[Découvrir WordBook](https://clement-poger.github.io/wordbook/)**
+**[Découvrir WordBook](https://clement-poger.github.io/wordbook/public/index.html)**
 
 ## Lancer l’application
 
-Ouvrez simplement [WordBook](https://clement-poger.github.io/wordbook/) dans un navigateur. Le site est servi directement par GitHub Pages à partir des fichiers statiques de `public/` : aucune installation, commande npm ou shell n’est nécessaire.
+Ouvrez simplement [WordBook](https://clement-poger.github.io/wordbook/public/index.html) dans un navigateur. Le site est servi directement par GitHub Pages à partir des fichiers statiques de `public/` : aucune installation, commande npm ou shell n’est nécessaire.
 
 Chaque modification publiée sur la branche `main` est déployée automatiquement par GitHub Actions.
 

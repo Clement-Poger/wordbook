@@ -17,7 +17,7 @@
     <section class="login-screen" id="login-screen" aria-labelledby="login-title">
       <div class="login-visual" id="welcome-screen">
         <a class="brand brand-light" href="./" aria-label="WordBook home">
-          <span class="brand-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span>
+          <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
           <span>WordBook</span>
         </a>
         <div class="login-message">
@@ -25,7 +25,7 @@
           <h1>Find the words<br>for what you mean.</h1>
           <p>Make room for new words. Keep the ones that matter. Let confidence follow.</p>
           <button class="button button-primary join-button" id="join-button" type="button">
-            <span>Join WordBook</span><svg aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>
+            <span>Join WordBook</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">
           </button>
         </div>
         <span class="visual-note">YOUR ENGLISH, AT YOUR OWN PACE</span>
@@ -33,10 +33,10 @@
       <div class="login-panel" id="login-panel" hidden>
         <div class="login-card">
           <span class="mobile-brand brand">
-            <span class="brand-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span>
+            <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
             <span>WordBook</span>
           </span>
-          <button class="login-back" id="login-back" type="button"><svg aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg><span>Back to welcome</span></button>
+          <button class="login-back" id="login-back" type="button"><img src="./assets/arrow-right.svg" class="icon-image" alt="" aria-hidden="true"><span>Back to welcome</span></button>
           <span class="eyebrow">WELCOME BACK</span>
           <h2 id="login-title">Your next word awaits.</h2>
           <p class="login-intro">Sign in to pick up where you left off.</p>
@@ -47,10 +47,10 @@
             <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
             <p class="form-error" id="login-error" role="alert" aria-live="polite"></p>
             <button class="button button-primary login-submit" type="submit">
-              <span>Sign in</span><svg aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg>
+              <span>Sign in</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">
             </button>
           </form>
-          <p class="login-footnote"><svg aria-hidden="true"><use href="./icons.svg#icon-lock"></use></svg> Sign-in protected by Supabase.</p>
+          <p class="login-footnote"><img src="./assets/cadena.svg" class="icon-image" alt="" aria-hidden="true"> Sign-in protected by Supabase.</p>
         </div>
         <span class="panel-footer">A quieter way to grow your vocabulary.</span>
       </div>
@@ -59,31 +59,31 @@
     <div class="app-shell" id="app-shell" hidden>
       <aside class="sidebar">
         <a class="brand" href="#" data-view="words" aria-label="WordBook home">
-          <span class="brand-mark"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span>
+          <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
           <span>WordBook</span>
         </a>
         <div class="sidebar-label">YOUR SPACE</div>
         <nav class="main-nav" aria-label="Main navigation">
           <button class="nav-item active" type="button" data-view="words" aria-current="page" aria-label="Word library">
-            <svg aria-hidden="true"><use href="./icons.svg#icon-book"></use></svg><span>Word library</span>
+            <img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true"><span>Word library</span>
           </button>
           <button class="nav-item" type="button" data-view="quiz" aria-label="Word quest">
-            <svg aria-hidden="true"><use href="./icons.svg#icon-target"></use></svg><span>Word quest</span>
+            <img src="./assets/fleche-dans-le-mille.svg" class="icon-image" alt="" aria-hidden="true"><span>Word quest</span>
             <span class="nav-dot" aria-hidden="true"></span>
           </button>
           <button class="nav-item admin-nav-item" id="admin-nav-item" type="button" data-view="admin" aria-label="Manage lessons" hidden>
-            <svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><span>Manage lessons</span>
+            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><span>Manage lessons</span>
           </button>
         </nav>
         <div class="sidebar-bottom">
           <div class="daily-note">
-            <svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg>
+            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true">
             <p><strong>Small steps count.</strong><br>A few new words today go a long way.</p>
           </div>
           <button class="account-button" id="logout-button" type="button" aria-label="Sign out">
             <span class="avatar" id="avatar">W</span>
             <span class="account-name"><strong id="account-username">Learner</strong><small id="account-role">Learner</small></span>
-            <svg class="logout-icon" aria-hidden="true"><use href="./icons.svg#icon-logout"></use></svg>
+            <img src="./assets/deconnexion-alt.svg" class="logout-icon icon-image" alt="" aria-hidden="true">
           </button>
         </div>
       </aside>
@@ -98,21 +98,21 @@
           <div class="page-heading">
             <div><span class="eyebrow">YOUR PERSONAL COLLECTION</span><h1 id="page-title">Word library<span class="heading-period">.</span></h1>
               <p class="page-subtitle">A growing collection of useful words, ready when you are.</p></div>
-            <button class="button button-dark" type="button" data-view="quiz"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><span>Practice now</span><svg class="button-arrow" aria-hidden="true"><use href="./icons.svg#icon-arrow"></use></svg></button>
+            <button class="button button-dark" type="button" data-view="quiz"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><span>Practice now</span><img src="./assets/arrow-down.svg" class="button-arrow icon-image" alt="" aria-hidden="true"></button>
           </div>
           <div class="stats-row">
-            <div class="stat-card"><span class="stat-icon stat-icon-lavender"><svg aria-hidden="true"><use href="./icons.svg#icon-book"></use></svg></span><span class="stat-copy"><span class="stat-label">WORDS TO EXPLORE</span><strong id="word-count">0</strong></span><span class="stat-aside">in your library</span></div>
-            <div class="stat-card"><span class="stat-icon stat-icon-peach"><svg aria-hidden="true"><use href="./icons.svg#icon-bookmark"></use></svg></span><span class="stat-copy"><span class="stat-label">SAVED FOR LATER</span><strong id="saved-count">0</strong></span><span class="stat-aside">words saved</span></div>
-            <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span><span class="stat-aside">a little practice</span></div>
+            <div class="stat-card"><span class="stat-icon stat-icon-lavender"><img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">WORDS TO EXPLORE</span><strong id="word-count">0</strong></span><span class="stat-aside">in your library</span></div>
+            <div class="stat-card"><span class="stat-icon stat-icon-peach"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">SAVED FOR LATER</span><strong id="saved-count">0</strong></span><span class="stat-aside">words saved</span></div>
+            <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span><span class="stat-aside">a little practice</span></div>
           </div>
           <div class="library-toolbar">
             <div><span class="eyebrow">BROWSE & DISCOVER</span><h2>Find your next favorite word</h2><p>Search meanings, examples, and topics. Save words to revisit them later.</p></div>
           </div>
           <div class="library-controls">
-            <label class="search-box"><svg aria-hidden="true"><use href="./icons.svg#icon-search"></use></svg><span class="visually-hidden">Search words and meanings</span><input id="word-search" type="search" placeholder="Search a word, meaning, or example..." autocomplete="off"><kbd>/</kbd></label>
+            <label class="search-box"><img src="./assets/loupe.svg" class="icon-image" alt="" aria-hidden="true"><span class="visually-hidden">Search words and meanings</span><input id="word-search" type="search" placeholder="Search a word, meaning, or example..." autocomplete="off"><kbd>/</kbd></label>
             <label class="filter-control"><span>Level</span><select id="level-filter" aria-label="Filter by level"><option value="all">All levels</option><option>B1</option><option>B2</option><option>C1</option></select></label>
             <label class="filter-control"><span>Topic</span><select id="topic-filter" aria-label="Filter by topic"><option value="all">All topics</option></select></label>
-            <button class="filter-toggle" id="saved-filter" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="./icons.svg#icon-bookmark"></use></svg> Saved <span id="saved-filter-count">0</span></button>
+            <button class="filter-toggle" id="saved-filter" type="button" aria-pressed="false"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"> Saved <span id="saved-filter-count">0</span></button>
             <span class="results-count" id="results-count" aria-live="polite"></span>
           </div>
           <div class="word-list" id="word-list" aria-live="polite"></div>
@@ -125,7 +125,7 @@
               <p class="page-subtitle">Create clear, useful word lessons for your learners.</p></div>
           </div>
           <form class="lesson-form" id="lesson-form">
-            <div class="form-heading"><span class="stat-icon stat-icon-lavender"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg></span><div><h2 id="lesson-form-title">Create a word lesson</h2><p>Each lesson becomes a new word in the library and the quiz.</p></div></div>
+            <div class="form-heading"><span class="stat-icon stat-icon-lavender"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><div><h2 id="lesson-form-title">Create a word lesson</h2><p>Each lesson becomes a new word in the library and the quiz.</p></div></div>
             <input id="lesson-id" name="id" type="hidden">
             <div class="form-grid">
               <label>Word<input name="word" maxlength="80" required placeholder="e.g. daydream"></label>
@@ -136,17 +136,17 @@
               <label class="form-span">Example sentence<input name="example" maxlength="500" required placeholder="Show the word in a natural sentence"></label>
             </div>
             <p class="form-error admin-form-error" id="lesson-error" role="alert" aria-live="polite"></p>
-            <div class="form-actions"><button class="button button-quiet" id="lesson-cancel" type="button" hidden>Cancel edit</button><button class="button button-dark" id="lesson-submit" type="submit"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg><span>Add lesson</span></button></div>
+            <div class="form-actions"><button class="button button-quiet" id="lesson-cancel" type="button" hidden>Cancel edit</button><button class="button button-dark" id="lesson-submit" type="submit"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><span>Add lesson</span></button></div>
           </form>
           <section class="csv-import" aria-labelledby="csv-title">
             <div class="csv-copy">
-              <span class="stat-icon stat-icon-peach"><svg aria-hidden="true"><use href="./icons.svg#icon-upload"></use></svg></span>
+              <span class="stat-icon stat-icon-peach"><img src="./assets/download-file.svg" class="icon-image" alt="" aria-hidden="true"></span>
               <div><h2 id="csv-title">Grow your word library</h2><p>Import a prepared CSV or start with the WordBook word pack.</p></div>
             </div>
-            <a class="button button-quiet csv-template" href="./word-bank.csv" download><svg aria-hidden="true"><use href="./icons.svg#icon-download"></use></svg> Download word pack</a>
+            <a class="button button-quiet csv-template" href="./word-bank.csv" download><img src="./assets/download-file.svg" class="icon-image" alt="" aria-hidden="true"> Download word pack</a>
             <form id="csv-import-form" class="csv-form">
-              <label class="file-drop" for="csv-file"><svg aria-hidden="true"><use href="./icons.svg#icon-file"></use></svg><span><strong id="csv-file-name">Choose a .csv file</strong><small>Columns: word, part_of_speech, definition, example, level, topic</small></span><input id="csv-file" type="file" accept=".csv,text/csv" required></label>
-              <button class="button button-dark" id="csv-import-button" type="submit" disabled><svg aria-hidden="true"><use href="./icons.svg#icon-upload"></use></svg> Import words</button>
+              <label class="file-drop" for="csv-file"><img src="./assets/document.svg" class="icon-image" alt="" aria-hidden="true"><span><strong id="csv-file-name">Choose a .csv file</strong><small>Columns: word, part_of_speech, definition, example, level, topic</small></span><input id="csv-file" type="file" accept=".csv,text/csv" required></label>
+              <button class="button button-dark" id="csv-import-button" type="submit" disabled><img src="./assets/download-file.svg" class="icon-image" alt="" aria-hidden="true"> Import words</button>
             </form>
             <p class="import-status" id="import-status" role="status" aria-live="polite"></p>
           </section>
@@ -162,7 +162,7 @@
           <div class="quiz-card" id="quiz-card">
             <div id="quiz-stage"></div>
           </div>
-          <div class="quiz-footer"><svg aria-hidden="true"><use href="./icons.svg#icon-spark"></use></svg> Every answer moves you forward. Ready when you are.</div>
+          <div class="quiz-footer"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"> Every answer moves you forward. Ready when you are.</div>
         </section>
       </main>
     </div>
