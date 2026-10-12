@@ -8,9 +8,10 @@ const PROFILE_IMAGES = Object.freeze({
 });
 const SUPABASE_CONFIG = Object.freeze({
   url: "https://henwzmiilnmzdwpmzunx.supabase.co",
-  anonKey: "sb_publishable_V78pOOyxgz9pL6s6sCEbnQ_j5nx7W9u",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlbnd6bWlpbG5temR3cG16dW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NzM3ODUsImV4cCI6MjEwNzE0OTc4NX0.-P4o0XarzXT0AvogRclFrHXvkrQso8zMA9WntEzhXfQ",
 });
 const LEVELS = new Set(["B1", "B2", "C1"]);
+const DEFAULT_LESSON_TOPIC = "Everyday";
 
 const loginScreen = document.querySelector("#login-screen");
 const welcomeScreen = document.querySelector("#welcome-screen");
@@ -18,13 +19,14 @@ const loginPanel = document.querySelector("#login-panel");
 const appShell = document.querySelector("#app-shell");
 const loginForm = document.querySelector("#login-form");
 const loginError = document.querySelector("#login-error");
+const homeView = document.querySelector("#home-view");
 const wordsView = document.querySelector("#words-view");
 const adminView = document.querySelector("#admin-view");
 const quizView = document.querySelector("#quiz-view");
 const wordList = document.querySelector("#word-list");
 const wordSearch = document.querySelector("#word-search");
 const levelFilter = document.querySelector("#level-filter");
-const topicFilter = document.querySelector("#topic-filter");
+const lessonSearch = document.querySelector("#lesson-search");
 const quizCard = document.querySelector("#quiz-card");
 const lessonForm = document.querySelector("#lesson-form");
 let supabaseClient;
@@ -61,12 +63,14 @@ function showLoginError(message) {
 function showWelcome() {
   loginPanel.hidden = true;
   welcomeScreen.hidden = false;
+  loginScreen.setAttribute("aria-labelledby", "welcome-title");
   document.querySelector("#join-button").focus({ preventScroll: true });
 }
 
 function showLoginPanel() {
   welcomeScreen.hidden = true;
   loginPanel.hidden = false;
+  loginScreen.setAttribute("aria-labelledby", "login-title");
   loginForm.elements.username.focus({ preventScroll: true });
 }
 
@@ -87,16 +91,21 @@ function readSavedWords() {
 }
 
 function updateAccount() {
-  document.querySelector("#account-username").textContent = currentProfile.username;
-  document.querySelector("#account-role").textContent = currentProfile.role === "admin" ? "Admin" : "Learner";
-  document.querySelector("#avatar").src = PROFILE_IMAGES[currentProfile.username];
+  const username = document.querySelector("#account-username");
+  const role = document.querySelector("#account-role");
+  const avatar = document.querySelector("#avatar");
+  if (username) username.textContent = currentProfile.username;
+  if (role) role.textContent = currentProfile.role === "admin" ? "Admin" : "Learner";
+  if (avatar) avatar.src = PROFILE_IMAGES[currentProfile.username];
+  document.querySelector(".bottom-nav").classList.toggle("has-admin-nav", currentProfile.role === "admin");
   document.querySelector("#admin-nav-item").hidden = currentProfile.role !== "admin";
 }
 
 function setView(view) {
-  const labels = { words: "Word library", quiz: "Word quest", admin: "Manage lessons" };
+  const labels = { home: "Home", words: "Word library", quiz: "Word quest", admin: "Manage lessons" };
   const currentView = view === "admin" && currentProfile.role !== "admin" ? "words" : view;
   const enteringQuiz = currentView === "quiz" && quizView.hidden;
+  homeView.hidden = currentView !== "home";
   wordsView.hidden = currentView !== "words";
   quizView.hidden = currentView !== "quiz";
   adminView.hidden = currentView !== "admin";
@@ -107,27 +116,31 @@ function setView(view) {
     if (selected) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   });
+  updateBottomNavIndicator();
   document.querySelectorAll(".view-panel").forEach((panel) => {
     panel.classList.toggle("is-entering", !panel.hidden);
   });
+  appShell.dataset.view = currentView;
   if (enteringQuiz) renderQuizSetup();
+}
+
+function updateBottomNavIndicator() {
+  const nav = document.querySelector(".bottom-nav");
+  const indicator = nav.querySelector(".nav-indicator");
+  const selected = nav.querySelector(".nav-item.active");
+  if (!selected || !indicator) return;
+  indicator.style.setProperty("--indicator-left", `${selected.offsetLeft}px`);
+  indicator.style.setProperty("--indicator-width", `${selected.offsetWidth}px`);
 }
 
 function renderWords() {
   const query = wordSearch.value.trim().toLowerCase();
   const selectedLevel = levelFilter.value;
-  const selectedTopic = topicFilter.value;
   const savedOnly = document.querySelector("#saved-filter").getAttribute("aria-pressed") === "true";
-  const topics = [...new Set(lessons.map(({ topic }) => topic))].sort((a, b) => a.localeCompare(b));
-  const previousTopic = selectedTopic;
-  topicFilter.innerHTML = '<option value="all">All topics</option>' + topics
-    .map((topic) => `<option value="${escapeHtml(topic)}">${escapeHtml(topic)}</option>`).join("");
-  topicFilter.value = topics.includes(previousTopic) ? previousTopic : "all";
   const visible = lessons.filter((lesson) => {
-    const searchable = `${lesson.word} ${lesson.definition} ${lesson.example} ${lesson.part_of_speech} ${lesson.topic}`.toLowerCase();
+    const searchable = `${lesson.word} ${lesson.definition} ${lesson.example} ${lesson.part_of_speech}`.toLowerCase();
     return searchable.includes(query)
       && (selectedLevel === "all" || lesson.level === selectedLevel)
-      && (topicFilter.value === "all" || lesson.topic === topicFilter.value)
       && (!savedOnly || savedWords.has(lesson.id));
   });
   document.querySelector("#word-count").textContent = String(lessons.length);
@@ -153,7 +166,7 @@ function renderWords() {
         </div>
         <span class="word-part">${escapeHtml(lesson.part_of_speech)}</span>
         <p class="word-definition">${escapeHtml(lesson.definition)}</p>
-        <div class="word-card-bottom"><span class="word-topic"><img src="./assets/tags.svg" class="icon-image" alt="" aria-hidden="true">${escapeHtml(lesson.topic)}</span><p class="word-example">${escapeHtml(lesson.example)}</p></div>
+        <div class="word-card-bottom"><p class="word-example">${escapeHtml(lesson.example)}</p></div>
       </article>`;
   }).join("");
 }
@@ -200,15 +213,16 @@ function parseCsv(text) {
 function parseLessonCsv(text) {
   const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   const headers = rows.shift()?.map((header) => header.trim().toLowerCase());
-  const required = ["word", "part_of_speech", "definition", "example", "level", "topic"];
+  const required = ["word", "part_of_speech", "definition", "example", "level"];
   if (!headers || required.some((header) => !headers.includes(header))) {
     throw new Error(`CSV header must include: ${required.join(", ")}.`);
   }
   if (rows.length > 500) throw new Error("Please import no more than 500 lessons at a time.");
   return rows.map((values, index) => {
     const lesson = Object.fromEntries(required.map((key) => [key, String(values[headers.indexOf(key)] || "").trim()]));
+    lesson.topic = DEFAULT_LESSON_TOPIC;
     const rowNumber = index + 2;
-    const limits = { word: 80, part_of_speech: 40, definition: 500, example: 500, topic: 60 };
+    const limits = { word: 80, part_of_speech: 40, definition: 500, example: 500 };
     const errors = required.filter((key) => !lesson[key] || (limits[key] && lesson[key].length > limits[key]));
     if (!LEVELS.has(lesson.level)) errors.push("level (use B1, B2, or C1)");
     return { lesson, rowNumber, errors };
@@ -274,15 +288,25 @@ async function importLessonsFromCsv(file) {
 
 function renderAdminLessons() {
   const manager = document.querySelector("#lesson-manager-list");
-  document.querySelector("#manager-count").textContent = `${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}`;
+  const query = lessonSearch.value.trim().toLowerCase();
+  const visible = lessons.filter((lesson) =>
+    `${lesson.word} ${lesson.part_of_speech} ${lesson.definition} ${lesson.example}`.toLowerCase().includes(query));
+  document.querySelector("#manager-count").textContent = query
+    ? `${visible.length} of ${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}`
+    : `${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}`;
   if (!lessons.length) {
     manager.innerHTML = '<div class="empty-search">Add the first word lesson above.</div>';
     return;
   }
 
-  manager.innerHTML = lessons.map((lesson) => `
+  if (!visible.length) {
+    manager.innerHTML = '<div class="empty-search">No lessons match your search.</div>';
+    return;
+  }
+
+  manager.innerHTML = visible.map((lesson) => `
     <article class="manager-row">
-      <div class="manager-word"><strong>${escapeHtml(lesson.word)}</strong><span>${escapeHtml(lesson.part_of_speech)} · ${escapeHtml(lesson.level)} · ${escapeHtml(lesson.topic)}</span></div>
+      <div class="manager-word"><strong>${escapeHtml(lesson.word)}</strong><span>${escapeHtml(lesson.part_of_speech)} · ${escapeHtml(lesson.level)}</span></div>
       <p>${escapeHtml(lesson.definition)}</p>
       <div class="manager-actions">
         <button class="button button-quiet" type="button" data-edit-lesson="${escapeHtml(lesson.id)}">Edit</button>
@@ -294,7 +318,7 @@ function renderAdminLessons() {
 async function loadLessons() {
   const { data, error } = await supabaseClient
     .from("lessons")
-    .select("id, word, part_of_speech, definition, example, level, topic")
+    .select("id, word, part_of_speech, definition, example, level")
     .order("word", { ascending: true });
   if (error) {
     console.error("Lessons could not be loaded:", error);
@@ -325,7 +349,7 @@ async function enterAccount(user) {
   updateAccount();
   loginScreen.hidden = true;
   appShell.hidden = false;
-  setView("words");
+  setView("home");
   try {
     await loadLessons();
   } catch (error) {
@@ -527,7 +551,6 @@ function clearLessonForm() {
   lessonForm.reset();
   lessonForm.querySelector("#lesson-id").value = "";
   lessonForm.elements.level.value = "B1";
-  lessonForm.elements.topic.value = "Everyday";
   document.querySelector("#lesson-form-title").textContent = "Create a word lesson";
   document.querySelector("#lesson-submit span").textContent = "Add lesson";
   document.querySelector("#lesson-cancel").hidden = true;
@@ -543,7 +566,6 @@ function editLesson(id) {
   lessonForm.elements.definition.value = lesson.definition;
   lessonForm.elements.example.value = lesson.example;
   lessonForm.elements.level.value = lesson.level;
-  lessonForm.elements.topic.value = lesson.topic;
   document.querySelector("#lesson-form-title").textContent = `Edit “${lesson.word}”`;
   document.querySelector("#lesson-submit span").textContent = "Save changes";
   document.querySelector("#lesson-cancel").hidden = false;
@@ -558,8 +580,22 @@ function handleWordActions(event) {
   if (speakButton && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(speakButton.dataset.speak);
-    utterance.lang = "en-US";
-    utterance.rate = 0.86;
+    const englishVoices = window.speechSynthesis.getVoices()
+      .filter((voice) => /^en([_-]|$)/i.test(voice.lang));
+    const preferredVoice = englishVoices
+      .map((voice) => {
+        const name = voice.name.toLowerCase();
+        const score = (voice.lang.toLowerCase() === "en-us" ? 4 : 0)
+          + (/\b(natural|neural|premium|enhanced)\b/.test(name) ? 5 : 0)
+          + (/\b(google|microsoft|samantha|ava|allison)\b/.test(name) ? 2 : 0)
+          + (voice.default ? 1 : 0);
+        return { voice, score };
+      })
+      .sort((first, second) => second.score - first.score)[0]?.voice;
+    utterance.lang = preferredVoice?.lang || "en-US";
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.rate = 0.95;
+    utterance.onerror = (error) => console.error("Pronunciation playback failed:", error.error);
     window.speechSynthesis.speak(utterance);
     return;
   }
@@ -598,7 +634,7 @@ async function handleLessonSubmit(event) {
     definition: String(values.get("definition")).trim(),
     example: String(values.get("example")).trim(),
     level: String(values.get("level")),
-    topic: String(values.get("topic")).trim(),
+    topic: DEFAULT_LESSON_TOPIC,
   };
   if (!LEVELS.has(payload.level)) {
     errorMessage.textContent = "Choose a valid English level.";
@@ -645,6 +681,8 @@ async function handleLessonManager(event) {
 }
 
 function wireEvents() {
+  window.addEventListener("resize", updateBottomNavIndicator);
+
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
@@ -658,7 +696,7 @@ function wireEvents() {
     const button = loginForm.querySelector("button[type=submit]");
     button.disabled = true;
     try {
-      if (!supabaseClient) throw new Error("Supabase isn’t configured yet. Follow the setup steps in the README.");
+      if (!supabaseClient) throw new Error(":/ Supabase isn’t configured yet. Follow the setup steps in the README.");
       const username = loginForm.elements.username.value.trim().toLowerCase();
       const email = ACCOUNTS[username];
       if (!email) throw new Error("That username and password don’t match.");
@@ -683,7 +721,7 @@ function wireEvents() {
   wordList.addEventListener("click", handleWordActions);
   wordSearch.addEventListener("input", renderWords);
   levelFilter.addEventListener("change", renderWords);
-  topicFilter.addEventListener("change", renderWords);
+  lessonSearch.addEventListener("input", renderAdminLessons);
   document.querySelector("#saved-filter").addEventListener("click", (event) => {
     const button = event.currentTarget;
     const pressed = button.getAttribute("aria-pressed") !== "true";
@@ -694,7 +732,6 @@ function wireEvents() {
     if (!(event.target instanceof Element) || !event.target.closest("#clear-filters")) return;
     wordSearch.value = "";
     levelFilter.value = "all";
-    topicFilter.value = "all";
     document.querySelector("#saved-filter").setAttribute("aria-pressed", "false");
     renderWords();
     wordSearch.focus();
@@ -783,7 +820,7 @@ function wireEvents() {
     if (event.target.closest("#quiz-retry")) startQuiz();
   });
 
-  document.querySelector("#logout-button").addEventListener("click", async () => {
+  document.querySelector("#logout-button")?.addEventListener("click", async () => {
     try {
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;

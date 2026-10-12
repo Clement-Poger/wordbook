@@ -15,14 +15,14 @@
   </head>
   <body>
     <section class="login-screen" id="login-screen" aria-labelledby="login-title">
-      <div class="login-visual" id="welcome-screen">
+      <div class="login-visual" id="welcome-screen" hidden>
         <a class="brand brand-light" href="./" aria-label="WordBook home">
           <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
           <span>WordBook</span>
         </a>
         <div class="login-message">
           <span class="eyebrow">A LITTLE EVERY DAY</span>
-          <h1>Find the words<br>for what you mean.</h1>
+          <h1 id="welcome-title">Find the words<br>for what you mean.</h1>
           <p>Make room for new words. Keep the ones that matter. Let confidence follow.</p>
           <button class="button button-primary join-button" id="join-button" type="button">
             <span>Join WordBook</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">
@@ -30,69 +30,79 @@
         </div>
         <span class="visual-note">YOUR ENGLISH, AT YOUR OWN PACE</span>
       </div>
-      <div class="login-panel" id="login-panel" hidden>
-        <div class="login-card">
-          <span class="mobile-brand brand">
-            <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
-            <span>WordBook</span>
-          </span>
-          <button class="login-back" id="login-back" type="button"><img src="./assets/arrow-right.svg" class="icon-image" alt="" aria-hidden="true"><span>Back to welcome</span></button>
-          <span class="eyebrow">WELCOME BACK</span>
-          <h2 id="login-title">Your next word awaits.</h2>
-          <p class="login-intro">Sign in to pick up where you left off.</p>
-          <form id="login-form" class="login-form">
-            <label for="username">Username</label>
-            <input id="username" name="username" type="text" autocomplete="username" placeholder="Your username" required>
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
-            <p class="form-error" id="login-error" role="alert" aria-live="polite"></p>
-            <button class="button button-primary login-submit" type="submit">
-              <span>Sign in</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">
-            </button>
-          </form>
-          <p class="login-footnote"><img src="./assets/cadena.svg" class="icon-image" alt="" aria-hidden="true"> Sign-in protected by Supabase.</p>
+      <div class="login-panel" id="login-panel">
+        <button class="login-back" id="login-back" type="button"><img src="./assets/arrow-right.svg" class="icon-image" alt="" aria-hidden="true"><span>Go back</span></button>
+        <div class="login-frame">
+          <div class="login-card">
+            <span class="mobile-brand brand">
+              <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
+              <span>WordBook</span>
+            </span>
+            <span class="eyebrow">SIGN IN TO CONTINUE</span>
+            <h2 id="login-title">Welcome back.</h2>
+            <p class="login-intro">Sign in to pick up where you left off.</p>
+            <form id="login-form" class="login-form">
+              <label for="username">Username</label>
+              <input id="username" name="username" type="text" autocomplete="username" placeholder="Your username" required>
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+              <p class="form-error" id="login-error" role="alert" aria-live="polite"></p>
+              <button class="button button-primary login-submit" type="submit">
+                <span>Sign in</span><img src="./assets/arrow-right.svg" class="button-arrow icon-image" alt="" aria-hidden="true">
+              </button>
+            </form>
+            <p class="login-footnote"><img src="./assets/cadena.svg" class="icon-image" alt="" aria-hidden="true"> Sign-in protected by Supabase.</p>
+          </div>
+          <aside class="login-deco" aria-hidden="true">
+            <span class="deco-label">A WORD A DAY</span>
+            <div class="deco-word-card">
+              <span class="deco-word-level">B2 · VERB</span>
+              <strong>serendipity</strong>
+              <span class="deco-word-meaning">Finding something lovely when you weren't looking for it.</span>
+            </div>
+            <span class="deco-caption">Make room for a new word.</span>
+          </aside>
         </div>
-        <span class="panel-footer">A quieter way to grow your vocabulary.</span>
       </div>
     </section>
 
     <div class="app-shell" id="app-shell" hidden>
-      <aside class="sidebar">
-        <a class="brand" data-view="words" aria-label="WordBook home">
-          <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
-          <span>WordBook</span>
-        </a>
-        <div class="sidebar-label">YOUR SPACE</div>
-        <nav class="main-nav" aria-label="Main navigation">
-          <button class="nav-item active" type="button" data-view="words" aria-current="page" aria-label="Word library">
-            <img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true"><span>Word library</span>
-          </button>
-          <button class="nav-item" type="button" data-view="quiz" aria-label="Word quest">
-            <img src="./assets/fleche-dans-le-mille.svg" class="icon-image" alt="" aria-hidden="true"><span>Word quest</span>
-            <span class="nav-dot" aria-hidden="true"></span>
-          </button>
-          <button class="nav-item admin-nav-item" id="admin-nav-item" type="button" data-view="admin" aria-label="Manage lessons" hidden>
-            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"><span>Manage lessons</span>
-          </button>
-        </nav>
-        <div class="sidebar-bottom">
-          <div class="daily-note">
-            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true">
-            <p><strong>Small steps count.</strong><br>A few new words today go a long way.</p>
-          </div>
-          <button class="account-button" id="logout-button" type="button" aria-label="Sign out">
-            <img class="avatar" id="avatar" src="./assets/clement.png" alt="" aria-hidden="true">
-            <span class="account-name"><strong id="account-username">Learner</strong><small id="account-role">Learner</small></span>
-            <img src="./assets/deconnexion-alt.svg" class="logout-icon icon-image" alt="" aria-hidden="true">
-          </button>
-        </div>
-      </aside>
-
       <main class="main-content">
         <header class="topbar">
-          <span class="breadcrumb"><span>My learning</span><span class="breadcrumb-divider">/</span><strong id="breadcrumb-page">Word library</strong></span>
+          <button class="brand" type="button" data-view="home" aria-label="WordBook home">
+            <span class="brand-mark"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span>
+            <span>WordBook</span>
+          </button>
+          <span class="breadcrumb"><span>My learning</span><span class="breadcrumb-divider">/</span><strong id="breadcrumb-page">Home</strong></span>
         </header>
         <p class="app-error" id="app-error" role="alert" hidden></p>
+        <section class="view-panel home-view" id="home-view" aria-labelledby="home-title">
+          <div class="home-heading">
+            <span class="eyebrow">YOUR WORDS, YOUR WAY</span>
+            <h1 id="home-title">What would you like to do?</h1>
+            <p>Explore a new word or give your memory a little workout.</p>
+          </div>
+          <div class="home-actions">
+            <button class="home-action-card home-library-card" data-view="words">
+              <img src="./assets/livre.svg" class="icon-image card-image" alt="" aria-hidden="true">
+              <div class="home-card-copy">
+                <span class="home-card-kicker">YOUR ENCYCLOPEDIA</span>
+                <h2>Look at your words</h2>
+                <p>Browse your growing collection, discover meanings, and save the words you love.</p>
+              </div>
+              <span class="home-card-foot">WORD LIBRARY <span>↗</span></span>
+            </button>
+            <button class="home-action-card home-quiz-card" data-view="quiz">
+              <img src="./assets/fleche-dans-le-mille.svg" class="icon-image card-image" alt="" aria-hidden="true">
+              <div class="home-card-copy">
+                <span class="home-card-kicker">A LITTLE CHALLENGE</span>
+                <h2>Test your knowledge</h2>
+                <p>Turn the words you know into words you remember. Ready for a quick quiz?</p>
+              </div>
+              <span class="home-card-foot">WORD QUIZ <span>↗</span></span>
+            </button>
+          </div>
+        </section>
         <section class="view-panel" id="words-view" aria-labelledby="page-title">
           <div class="page-heading">
             <div><span class="eyebrow">YOUR PERSONAL COLLECTION</span><h1 id="page-title">Word library<span class="heading-period">.</span></h1>
@@ -105,12 +115,11 @@
             <div class="stat-card stat-card-accent"><span class="stat-icon stat-icon-green"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"></span><span class="stat-copy"><span class="stat-label">A GOOD PLACE TO START</span><strong>5 min</strong></span></div>
           </div>
           <div class="library-toolbar">
-            <div><span class="eyebrow">BROWSE & DISCOVER</span><h2>Find your next favorite word</h2><p>Search meanings, examples, and topics. Save words to revisit them later.</p></div>
+            <div><span class="eyebrow">BROWSE & DISCOVER</span><h2>Find your next favorite word</h2><p>Search words, meanings, and examples. Save words to revisit them later.</p></div>
           </div>
           <div class="library-controls">
             <label class="search-box"><img src="./assets/loupe.svg" class="icon-image" alt="" aria-hidden="true"><span class="visually-hidden">Search words and meanings</span><input id="word-search" type="search" placeholder="Search a word, meaning, or example..." autocomplete="off"><kbd>/</kbd></label>
-            <label class="filter-control"><span>Level</span><select id="level-filter" aria-label="Filter by level"><option value="all">All levels</option><option>B1</option><option>B2</option><option>C1</option></select></label>
-            <label class="filter-control"><span>Topic</span><select id="topic-filter" aria-label="Filter by topic"><option value="all">All topics</option></select></label>
+            <label class="filter-control level-filter-control"><span>Level</span><select id="level-filter" aria-label="Filter by level"><option value="all">All levels</option><option>B1</option><option>B2</option><option>C1</option></select></label>
             <button class="filter-toggle" id="saved-filter" type="button" aria-pressed="false"><img src="./assets/marque-page.svg" class="icon-image" alt="" aria-hidden="true"> Saved <span id="saved-filter-count">0</span></button>
           </div>
           <div class="word-list" id="word-list" aria-live="polite"></div>
@@ -129,7 +138,6 @@
               <label>Word<input name="word" maxlength="80" required placeholder="e.g. daydream"></label>
               <label>Part of speech<input name="part_of_speech" maxlength="40" required placeholder="e.g. verb"></label>
               <label>Level<select name="level"><option selected>B1</option><option>B2</option><option>C1</option></select></label>
-              <label>Topic<input name="topic" maxlength="60" required value="Everyday" placeholder="e.g. Travel"></label>
               <label class="form-span">Meaning<input name="definition" maxlength="500" required placeholder="Explain the word in simple English"></label>
               <label class="form-span">Example sentence<input name="example" maxlength="500" required placeholder="Show the word in a natural sentence"></label>
             </div>
@@ -143,12 +151,13 @@
             </div>
             <a class="button button-quiet csv-template" href="./word-bank.csv" download><img src="./assets/download-file.svg" class="icon-image" alt="" aria-hidden="true"> Download word pack</a>
             <form id="csv-import-form" class="csv-form">
-              <label class="file-drop" for="csv-file"><img src="./assets/document.svg" class="icon-image" alt="" aria-hidden="true"><span><strong id="csv-file-name">Choose a .csv file</strong><small>Columns: word, part_of_speech, definition, example, level, topic</small></span><input id="csv-file" type="file" accept=".csv,text/csv" required></label>
+              <label class="file-drop" for="csv-file"><img src="./assets/document.svg" class="icon-image" alt="" aria-hidden="true"><span><strong id="csv-file-name">Choose a .csv file</strong><small>Columns: word, part_of_speech, definition, example, level</small></span><input id="csv-file" type="file" accept=".csv,text/csv" required></label>
               <button class="button button-dark" id="csv-import-button" type="submit" disabled><img src="./assets/download-file.svg" class="icon-image" alt="" aria-hidden="true"> Import words</button>
             </form>
             <p class="import-status" id="import-status" role="status" aria-live="polite"></p>
           </section>
           <div class="lesson-manager-header"><div><h2>Your lesson shelf</h2><p>Updates are shared with both learners instantly.</p></div><span class="manager-count" id="manager-count"></span></div>
+          <label class="manager-search"><img src="./assets/loupe.svg" class="icon-image" alt="" aria-hidden="true"><span class="visually-hidden">Search lessons</span><input id="lesson-search" type="search" placeholder="Search words, meanings, or examples..." autocomplete="off"></label>
           <div class="lesson-manager-list" id="lesson-manager-list"></div>
         </section>
 
@@ -163,6 +172,34 @@
           <div class="quiz-footer"><img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true"> Every answer moves you forward. Ready when you are.</div>
         </section>
       </main>
+      <footer class="bottom-bar">
+        <div class="bottom-account">
+          <img class="avatar" id="avatar" src="./assets/clement.png" alt="" aria-hidden="true">
+          <span class="account-name"><strong id="account-username">Learner</strong><small id="account-role">Learner</small></span>
+        </div>
+        <nav class="bottom-nav" aria-label="Main navigation">
+          <span class="nav-indicator" aria-hidden="true"></span>
+          <button class="nav-item" type="button" data-view="words" aria-label="Word library">
+            <img src="./assets/livre.svg" class="icon-image" alt="" aria-hidden="true">
+            <span class="nav-text">Word</span>
+          </button>
+          <button class="nav-item active" type="button" data-view="home" aria-current="page" aria-label="Home">
+            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true">
+            <span class="nav-text">Home</span>
+          </button>
+          <button class="nav-item" type="button" data-view="quiz" aria-label="Word quest">
+            <img src="./assets/fleche-dans-le-mille.svg" class="icon-image" alt="" aria-hidden="true">
+            <span class="nav-text">Quiz</span>
+          </button>
+          <button class="nav-item admin-nav-item" id="admin-nav-item" type="button" data-view="admin" aria-label="Manage lessons" hidden>
+            <img src="./assets/logo.svg" class="icon-image" alt="" aria-hidden="true">
+            <span class="nav-text">Manage</span>
+          </button>
+        </nav>
+        <button class="signout-button" id="logout-button" type="button">
+          <img src="./assets/deconnexion-alt.svg" class="icon-image" alt="" aria-hidden="true"><span>Quit</span>
+        </button>
+      </footer>
     </div>
   </body>
 </html>
